@@ -1,0 +1,264 @@
+import { motion } from "framer-motion";
+import { Avatar, Pill, Card, Reveal } from "./components.jsx";
+import { META, PEOPLE, DECISIONS, VISION, WORKFLOW, PHASES, TASKS, OPEN_ITEMS, DOCS, DG, PALETTE, ABOUT } from "./content.js";
+
+const SectionHead = ({ eyebrow, title, lead }) => (
+  <Reveal>
+    <div className="eyebrow">{eyebrow}</div>
+    <h1 className="h-lg">{title}</h1>
+    {lead && <p className="lead">{lead}</p>}
+  </Reveal>
+);
+
+function Overview() {
+  return (
+    <div>
+      <motion.div className="hero" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
+        <motion.div className="diamond" animate={{ rotate: [45, 49, 45] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} />
+        <img src="./hm-intel-logo.png" alt="HM Intel" />
+        <div className="eyebrow">Isolation Distance Mapping · Developer Trial &amp; Engagement</div>
+        <h1 className="h-lg">HM Intel Project Portal</h1>
+        <p className="lead">A single place to follow this engagement end to end: the scope, how we will work together, milestones, who owns what, decisions, and every document in one trail. Built for Chris and Ryan to see exactly where things stand at any moment.</p>
+        <div className="metarow">
+          {META.map(([k, v]) => (
+            <div key={k}><div className="k">{k}</div><div className="v">{v}</div></div>
+          ))}
+        </div>
+      </motion.div>
+
+      <h2 className="sec-title">The brief, in one paragraph</h2>
+      <Reveal><p className="lead">A first responder arrives at an incident involving a vehicle carrying dangerous goods. Using HM Intel they identify the product, see their location on a map, and visualise an isolation zone around the incident. The trial is a focused prototype of that flow. It is explicitly not a production system: Chris and Ryan want to see development approach, UI and workflow thinking, code organisation, communication, and how requirements and assumptions are handled.</p></Reveal>
+      <Reveal><div className="note" style={{ marginTop: 16 }}><b>Why this portal exists.</b> Chris said the hardest part with past development has been visibility into progress and timelines. This portal is my answer to that: a living, always-current view of scope, milestones, owners and decisions, so CTS never has to ask where things stand. It is the technical-leadership habit, made visible from day one.</div></Reveal>
+
+      <h2 className="sec-title">How I am approaching it</h2>
+      <div className="grid g3">
+        {[["Understand before building", "Short, real discovery first so the prototype reflects where HM Intel is going, not my assumptions."],
+          ["Small steps, early check-ins", "Direction visible at each milestone so it can be corrected cheaply, never a big reveal at the end."],
+          ["Write the thinking down", "Decisions, assumptions and trade-offs documented, which is half of what this trial is really testing."]].map(([h, b], i) => (
+          <Card key={h} className="hl" i={i}><div className="k">Principle {i + 1}</div><h3>{h}</h3><div className="v">{b}</div></Card>
+        ))}
+      </div>
+
+      <h2 className="sec-title">Who is involved</h2>
+      <div className="grid g3">
+        {PEOPLE.map((p, i) => (
+          <Card key={p.name} i={i}><div className="owner"><Avatar i={p.i} c={p.c} /> {p.name}</div><div className="v" style={{ marginTop: 8 }}>{p.role}</div></Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Roadmap() {
+  return (
+    <div>
+      <SectionHead eyebrow="Plan" title="Roadmap & Milestones" lead="A proposed shape, not a fixed plan. The intent is to agree the steps and the check-in rhythm with Chris and Ryan so expectations are clear on both sides. Timing is honest: with no hard deadline, the core prototype is roughly one to two weeks of part-time work once scope is agreed, and the optional pieces extend that." />
+      <div style={{ marginTop: 24 }}>
+        {PHASES.map((p, i) => (
+          <Reveal key={p.title} delay={i * 0.05}>
+            <div className={`phase ${p.cls}`}>
+              <div className="node">{p.n}</div>
+              <div className="body">
+                <h4>{p.title} {p.pill && <Pill kind={p.pill[1]}>{p.pill[0]}</Pill>}</h4>
+                <p>{p.body}</p>
+                <div className="owner"><Avatar i={p.who[0] === "all" ? "ALL" : "KA"} c={p.who[0]} /> {p.who[1]} {p.who[2] && <>&nbsp;·&nbsp; <span className="tag">{p.who[2]}</span></>}</div>
+              </div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+      <h2 className="sec-title">Scope for the prototype</h2>
+      <div className="grid g2">
+        <Card><h3>Core (in scope)</h3><ul className="clean">
+          <li>Device location on a map, with permission handling</li><li>Select a dangerous-goods product</li>
+          <li>Isolation zone drawn around the incident</li><li>Information panel: UN number, name, class, ERG guide, distances, emergency contact</li>
+          <li>Clean mock-data structure and clear code organisation</li></ul></Card>
+        <Card i={1}><h3>Candidate enhancements (to confirm)</h3><ul className="clean">
+          <li>Move the incident point on the map</li><li>Metres / kilometres toggle</li>
+          <li>Separate downwind protective zone + wind direction</li><li>Offline fallback messaging</li><li>Mobile-first layout</li></ul></Card>
+      </div>
+    </div>
+  );
+}
+
+const Column = ({ title, items }) => (
+  <div className="col">
+    <h4>{title} <span>{items.length}</span></h4>
+    {items.map((t, i) => (
+      <motion.div className="task" key={t.t} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -2 }}>
+        <div className="t">{t.t}</div>
+        <div className="meta">
+          {t.q ? <Pill kind="p-q">Question</Pill> : t.who ? <span className="owner"><Avatar i={t.who === "all" ? "ALL" : "KA"} c={t.who} /></span> : <Pill kind="p-ok">Done</Pill>}
+          <span className="tag">{t.tag}</span>
+        </div>
+      </motion.div>
+    ))}
+  </div>
+);
+
+function Tasks() {
+  return (
+    <div>
+      <SectionHead eyebrow="Execution" title="Tasks & Owners" lead="Everything in motion, grouped by state. Tasks cover the engagement, the project itself, and the open questions for HM Intel." />
+      <div className="board" style={{ marginTop: 22 }}>
+        <Column title="To do" items={TASKS.todo} />
+        <Column title="In progress" items={TASKS.prog} />
+        <Column title="Done" items={TASKS.done} />
+      </div>
+      <h2 className="sec-title">Open items waiting on CTS</h2>
+      <table>
+        <tbody>
+          <tr><th>Item</th><th>Owner</th><th>Status</th></tr>
+          {OPEN_ITEMS.map(([item, av, who, st]) => (
+            <tr key={item}><td>{item}</td><td><span className="owner"><Avatar i={av} c="c" /> {who}</span></td><td><Pill kind={st[1]}>{st[0]}</Pill></td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function Meetings() {
+  return (
+    <div>
+      <SectionHead eyebrow="Record" title="Meeting Notes" />
+      <Card className="hl" i={0}>
+        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}><h3>Discovery call</h3><Pill kind="p-ok">Completed</Pill></div>
+        <div className="metarow">
+          {[["When", "Monday, Jun 1 · 2:00 PM"], ["Where", "Google Meet"], ["Attendees", "Kalyan · Chris · Ryan"]].map(([k, v]) => (
+            <div key={k}><div className="k">{k}</div><div className="v">{v}</div></div>
+          ))}
+        </div>
+        <h4 style={{ marginTop: 16, fontSize: 14 }}>What we covered</h4>
+        <ul className="clean">
+          <li>Background: HM Intel, its relationship to DG Vault, and why the role exists</li>
+          <li>Product vision, primary users, and the on-scene workflow</li>
+          <li>Trial scope for the isolation-distance tool</li>
+          <li>Stack, deliverable format, and what success looks like</li>
+          <li>How the freelance and longer-term pieces could unfold</li>
+        </ul>
+        <h4 style={{ marginTop: 14, fontSize: 14 }}>Decisions &amp; outcomes</h4>
+        <ul className="clean">{DECISIONS.map((d, i) => (<li key={i}>{d}</li>))}</ul>
+      </Card>
+    </div>
+  );
+}
+
+function Research() {
+  return (
+    <div>
+      <SectionHead eyebrow="Context" title="Discovery & Research" lead="Confirmed with Chris on June 1. This is the shared understanding the build runs on." />
+      <h2 className="sec-title">What HM Intel is</h2>
+      <Reveal><p className="lead">{VISION.what}</p></Reveal>
+      <div className="grid g2" style={{ marginTop: 14 }}>
+        <Card><h3>Initial functionality</h3><ul className="clean">{VISION.initial.map((x) => <li key={x}>{x}</li>)}</ul></Card>
+        <Card i={1}><h3>Long-term vision</h3><ul className="clean">{VISION.longterm.map((x) => <li key={x}>{x}</li>)}</ul></Card>
+      </div>
+      <h2 className="sec-title">Who uses it, and how</h2>
+      <div className="grid g2">
+        <Card><h3>Primary users</h3><div className="v">{VISION.users}</div><div className="v" style={{ marginTop: 10, color: "var(--slate)" }}>{VISION.why}</div></Card>
+        <Card i={1}><h3>On-scene workflow</h3><ol className="clean">{WORKFLOW.map((x) => <li key={x}>{x}</li>)}</ol></Card>
+      </div>
+      <h2 className="sec-title">Trial scope — confirmed</h2>
+      <Reveal><div className="note"><b>Resolved on the call.</b> v1 is a single circular isolation zone with Google Maps, GPS location, and product selection from the sample data. The distances are placeholders only. Protective-action (downwind) zones, wind direction, day/night and spill-size are future scope, not part of the trial. The point of v1 is a clean, honest, well-built slice, not a feature pile.</div></Reveal>
+      <h2 className="sec-title">Sample dangerous-goods data</h2>
+      <Reveal>
+        <table><tbody>
+          <tr><th>UN</th><th>Name</th><th>Class</th><th>ERG</th><th>Isolation</th><th>Protective</th></tr>
+          {DG.map((r) => (<tr key={r[0]}>{r.map((c, j) => <td key={j}>{c}</td>)}</tr>))}
+        </tbody></table>
+      </Reveal>
+      <h2 className="sec-title">What people use today</h2>
+      <div className="grid g2">
+        <Card><h3>The alternatives</h3><ul className="clean"><li>The printed Emergency Response Guidebook</li><li>PHMSA's ERG app</li><li>CANUTEC (Canada) and CHEMTREC</li><li>WISER, CAMEO / ALOHA</li></ul></Card>
+        <Card i={1}><h3>HM Intel's possible wedge</h3><div className="v">Speed and clarity on scene, identification straight from the load rather than thumbing a book, and a map you can act on. The discovery call is where we confirm which of these matters most.</div></Card>
+      </div>
+    </div>
+  );
+}
+
+function Docs() {
+  return (
+    <div>
+      <SectionHead eyebrow="Trail" title="Documents" lead="Every artifact for this engagement, in one index, version-controlled under the project." />
+      <div style={{ marginTop: 20 }}>
+        {DOCS.map(([ic, title, sub, st], i) => (
+          <motion.div className="docrow" key={title} initial={{ opacity: 0, x: -12 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
+            <div className="ic">{ic}</div>
+            <div className="d"><b>{title}</b><br /><span>{sub}</span></div>
+            <Pill kind={st[1]}>{st[0]}</Pill>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Brand() {
+  return (
+    <div>
+      <SectionHead eyebrow="Identity" title="HM Intel Brand System" lead="Built from the supplied logo: a red hazard-diamond shield carrying an &quot;i&quot; for intelligence. The system is intentionally light, precise and authoritative, the way emergency-response tooling should feel. Red is used with purpose, not everywhere, because in this domain red means alert." />
+      <h2 className="sec-title">Core palette</h2>
+      <div className="grid g4">
+        {PALETTE.map(([name, hex], i) => (
+          <motion.div className="sw" key={hex} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.04 }}>
+            <div className="chip" style={{ background: hex, borderBottom: "1px solid var(--line)" }} />
+            <div className="lbl"><b>{name}</b><span>{hex}</span></div>
+          </motion.div>
+        ))}
+      </div>
+      <h2 className="sec-title">Typography</h2>
+      <div className="grid g2">
+        <Card><div className="k">Display · Sora</div><div style={{ fontFamily: "Sora", fontWeight: 800, fontSize: 30, margin: "6px 0" }}>HM Intel</div><div className="v">Headings, numbers, anything that should feel engineered and confident.</div></Card>
+        <Card i={1}><div className="k">Text · Inter</div><div style={{ fontFamily: "Inter", fontSize: 16, margin: "6px 0" }}>Clear, neutral, highly legible at small sizes and on mobile in the field.</div><div className="v">Body, labels, data tables.</div></Card>
+      </div>
+      <h2 className="sec-title">Principles &amp; usage</h2>
+      <div className="grid g2">
+        <Card><h3>Do</h3><ul className="clean"><li>Lead with light surfaces and ink text; let red mark what matters</li><li>Use the diamond/shield motif sparingly as a quiet nod to placards</li><li>Keep data dense but calm: clear hierarchy, generous spacing</li><li>Reserve the status colours strictly for state, never decoration</li></ul></Card>
+        <Card i={1}><h3>Don't</h3><ul className="clean"><li>No dark-mode-plus-orange look; this identity is its own, not anyone else's</li><li>Don't flood the screen with red; it loses its meaning</li><li>No clip-art hazard icons; the shield mark carries the signal</li><li>Don't crowd the logo; give it clear space equal to the shield height</li></ul></Card>
+      </div>
+      <Reveal><div className="note" style={{ marginTop: 16 }}><b>Origin &amp; ownership.</b> This system is an original build for HM Intel, derived only from the logo CTS provided. It deliberately shares nothing with other portfolios or clients in colour, type, or layout.</div></Reveal>
+    </div>
+  );
+}
+
+function About() {
+  const a = ABOUT;
+  return (
+    <div>
+      <SectionHead eyebrow="Background" title="About Kalyan" />
+      <Card className="hl" i={0}>
+        <div className="owner" style={{ fontSize: 17 }}><Avatar i="KA" c="k" lg /> &nbsp;{a.name}</div>
+        <div className="v" style={{ color: "var(--hm-red)", fontWeight: 600, marginTop: 8 }}>{a.tagline}</div>
+        <p className="lead" style={{ marginTop: 10 }}>{a.intro}</p>
+        <div className="grid g3" style={{ marginTop: 8 }}>
+          {a.pillars.map(([k, v]) => (<div key={k}><div className="k">{k}</div><div className="v">{v}</div></div>))}
+        </div>
+      </Card>
+
+      <h2 className="sec-title">Experience</h2>
+      {a.experience.map(([role, when, body], i) => (
+        <Reveal key={role} delay={i * 0.05}>
+          <div className="card" style={{ marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>
+              <h3>{role}</h3><span className="tag" style={{ color: "var(--muted)", fontWeight: 600 }}>{when}</span>
+            </div>
+            <div className="v" style={{ marginTop: 6, color: "var(--slate)" }}>{body}</div>
+          </div>
+        </Reveal>
+      ))}
+
+      <h2 className="sec-title">Skills</h2>
+      <Reveal><div className="chips">{a.skills.map((s) => <span key={s}>{s}</span>)}</div></Reveal>
+
+      <h2 className="sec-title">Education</h2>
+      <div className="grid g2">
+        {a.education.map(([d, w], i) => (<Card key={d} i={i}><h3 style={{ fontSize: 15 }}>{d}</h3><div className="v" style={{ color: "var(--muted)" }}>{w}</div></Card>))}
+      </div>
+
+      <Reveal><div className="note" style={{ marginTop: 18 }}>CTS has worked with developers before and is looking for the right long-term fit. My intent is to earn that by being clear, communicative, and dependable at every step, which is exactly what this portal is meant to demonstrate.</div></Reveal>
+    </div>
+  );
+}
+
+export const SECTIONS = { overview: Overview, roadmap: Roadmap, tasks: Tasks, meetings: Meetings, research: Research, docs: Docs, brand: Brand, about: About };
