@@ -90,7 +90,6 @@ export const TASKS = {
 };
 
 export const OPEN_ITEMS = [
-  ["GitHub repo CentilioTech/kalyan: create it and grant the token write access", "CW", "Chris / org admin", ["Blocked on access", "p-q"]],
   ["Confirm rate and weekly hours for the initial freelance engagement", "CW", "Chris", ["To confirm", "p-wait"]],
   ["Share the live demo link / handoff method for review", "KA", "Kalyan", ["After build", "p-wait"]],
 ];
