@@ -1,10 +1,11 @@
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Avatar, Pill, Card, Reveal, HolographicCard, Particles, MorphingText,
   Carousel3D, YieldCard, CourseCard, ShuffleCards, ActivityStream, ParticleText,
   ColorPaletteCard, BorderGlow,
 } from "./components.jsx";
-import { META, PEOPLE, DECISIONS, VISION, WORKFLOW, PHASES, TASKS, OPEN_ITEMS, DOCS, DG, PALETTE, ABOUT } from "./content.js";
+import { META, PEOPLE, DECISIONS, VISION, WORKFLOW, PHASES, TASKS, OPEN_ITEMS, CHECKLIST, DOCS, DG, PALETTE, ABOUT } from "./content.js";
 
 const BarsIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -32,7 +33,7 @@ function Overview() {
       {/* HM Intel Project Portal -> interactive frosted-glass card */}
       <motion.div className="hero frosted" onMouseMove={heroGlare} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
         <motion.div className="diamond" animate={{ rotate: [45, 49, 45] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} />
-        <img src="./hm-intel-logo.png" alt="HM Intel" />
+        <img src="/hm-intel-logo.png" alt="HM Intel" />
         <div className="eyebrow">Isolation Distance Mapping · Developer Trial &amp; Engagement</div>
         <h1 className="h-lg shimmer">HM Intel Project Portal</h1>
         <p className="lead">A single place to follow this engagement end to end: the scope, how we will work together, milestones, who owns what, decisions, and every document in one trail. Built for Chris and Ryan to see exactly where things stand at any moment.</p>
@@ -107,7 +108,7 @@ const Column = ({ title, items }) => (
   <div className="col">
     <h4>{title} <span>{items.length}</span></h4>
     {items.map((t, i) => (
-      <motion.div className="task" key={t.t} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -2 }}>
+      <motion.div className="task" key={t.t} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}  transition={{ delay: i * 0.05 }} whileHover={{ y: -2 }}>
         <div className="t">{t.t}</div>
         <div className="meta">
           {t.q ? <Pill kind="p-q">Question</Pill> : t.who ? <span className="owner"><Avatar i={t.who === "all" ? "ALL" : "KA"} c={t.who} /></span> : <Pill kind="p-ok">Done</Pill>}
@@ -137,6 +138,19 @@ function Tasks() {
           ))}
         </tbody>
       </table>
+
+      <h2 className="sec-title">Next steps &amp; working agreement</h2>
+      <Reveal><p className="lead" style={{ marginBottom: 6 }}>The context to align on so this trial moves cleanly into the build. Each card is a small checklist; the status reflects what is already confirmed versus what we still need to agree with Chris and Ryan.</p></Reveal>
+      <div className="grid g3" style={{ marginTop: 14 }}>
+        {CHECKLIST.map((c, i) => (
+          <Card key={c.title} i={i}>
+            <div className="k">{c.label}</div>
+            <h3 style={{ marginTop: 4, marginBottom: 10 }}>{c.title}</h3>
+            <ul className="clean" style={{ marginTop: 0 }}>{c.points.map((p) => <li key={p}>{p}</li>)}</ul>
+            <div style={{ marginTop: 12 }}><Pill kind={c.status[1]}>{c.status[0]}</Pill></div>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
@@ -199,12 +213,54 @@ function Research() {
   );
 }
 
+function DocViewer({ doc, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [onClose]);
+  return (
+    <motion.div className="doc-overlay" onClick={onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}>
+      <motion.div className="doc-sheet" onClick={(e) => e.stopPropagation()} initial={{ opacity: 0, y: 26, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.98 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}>
+        <button className="doc-close" onClick={onClose} aria-label="Close document">×</button>
+        <div className="doc-sheet-head">
+          <div className="eyebrow">{doc.type}</div>
+          <h2>{doc.title}</h2>
+          {doc.meta && <div className="doc-sheet-meta">{doc.meta}</div>}
+        </div>
+        <div className="doc-sheet-body">
+          {doc.img && <img className="doc-sheet-img" src="/hm-intel-logo.png" alt="HM Intel logo" />}
+          {doc.body.map((blk, i) =>
+            blk[0] === "h" ? <h3 key={i}>{blk[1]}</h3>
+              : blk[0] === "list" ? <ul key={i} className="clean">{blk[1].map((it, j) => <li key={j}>{it}</li>)}</ul>
+                : <p key={i}>{blk[1]}</p>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function Docs() {
+  const [open, setOpen] = useState(null);
   return (
     <div>
-      <SectionHead eyebrow="Trail" title="Documents" lead="Every artifact for this engagement, in one index, version-controlled under the project." />
-      {/* Documents -> activity stream */}
-      <ActivityStream items={DOCS.map(([ic, title, sub, st]) => ({ ic, title, sub, status: st[0], statusKind: st[1] }))} />
+      <SectionHead eyebrow="Trail" title="Documents" lead="Every artifact for this engagement, in one index and version-controlled under the project. Click any document to open it." />
+      <div className="doc-list">
+        {DOCS.map((d, i) => (
+          <motion.button type="button" className="doc-card" key={d.title} onClick={() => setOpen(d)} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }} whileHover={{ y: -2 }}>
+            <div className="doc-content">
+              <div className="doc-head"><b>{d.title}</b><Pill kind={d.status[1]}>{d.status[0]}</Pill></div>
+              <div className="doc-type">{d.type}</div>
+              <p className="doc-summary">{d.summary}</p>
+              <span className="doc-open">Open document <span aria-hidden="true">→</span></span>
+            </div>
+          </motion.button>
+        ))}
+      </div>
+      <AnimatePresence>{open && <DocViewer doc={open} onClose={() => setOpen(null)} />}</AnimatePresence>
     </div>
   );
 }

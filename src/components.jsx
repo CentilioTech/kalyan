@@ -15,8 +15,8 @@ export const Reveal = ({ children, delay = 0, y = 14, className }) => (
   <motion.div
     className={className}
     initial={{ opacity: 0, y }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-40px" }}
+    animate={{ opacity: 1, y: 0 }}
+    
     transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
   >
     {children}
@@ -35,8 +35,8 @@ export const Card = ({ children, className = "", i = 0 }) => {
       className={`card ${className}`}
       onMouseMove={onMove}
       initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
+      animate={{ opacity: 1, y: 0 }}
+      
       transition={{ duration: 0.45, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -4 }}
     >
@@ -128,8 +128,8 @@ export const HolographicCard = ({ children, className = "", i = 0 }) => {
     <motion.div
       className="holo-outer"
       initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
+      animate={{ opacity: 1, y: 0 }}
+      
       transition={{ duration: 0.45, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
     >
       <div ref={inner} className={`card holo ${className}`} onMouseMove={onMove} onMouseLeave={onLeave}>
@@ -286,7 +286,7 @@ export function YieldCard({ icon, title, desc }) {
 // Course-style card: gradient header band, icon, title, meta, status.
 export function CourseCard({ ic, title, sub, status, statusKind, i = 0 }) {
   return (
-    <motion.div className="course-card" initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -5 }}>
+    <motion.div className="course-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}  transition={{ delay: i * 0.05 }} whileHover={{ y: -5 }}>
       <div className="course-top"><span className="course-ic">{ic}</span></div>
       <div className="course-body">
         <b>{title}</b>
@@ -300,7 +300,7 @@ export function CourseCard({ ic, title, sub, status, statusKind, i = 0 }) {
 // Testimonial / quote card.
 export function TestimonialCard({ quote, who, avatar, avc = "all", i = 0 }) {
   return (
-    <motion.div className="testi-card" initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
+    <motion.div className="testi-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}  transition={{ delay: i * 0.05 }}>
       <div className="testi-mark">&ldquo;</div>
       <p className="testi-text">{quote}</p>
       <div className="testi-by"><Avatar i={avatar} c={avc} /><span>{who}</span></div>
@@ -401,7 +401,7 @@ export function ActivityStream({ items }) {
   return (
     <div className="activity">
       {items.map((it, i) => (
-        <motion.div className="activity-item" key={i} initial={{ opacity: 0, x: -12 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
+        <motion.div className="activity-item" key={i} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}  transition={{ delay: i * 0.05 }}>
           <div className="activity-node">{it.ic}</div>
           <div className="activity-body">
             <div className="activity-row"><b>{it.title}</b>{it.status && <Pill kind={it.statusKind}>{it.status}</Pill>}</div>
@@ -417,7 +417,7 @@ export function Sidebar({ active, onPick, open }) {
   return (
     <aside className={`side${open ? " open" : ""}`}>
       <div className="brandbar">
-        <img src="./hm-intel-logo.png" alt="HM Intel" />
+        <img src="/hm-intel-logo.png" alt="HM Intel" />
       </div>
       <nav className="nav">
         {NAV.map(([id, label]) => (

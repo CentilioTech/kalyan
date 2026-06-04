@@ -313,3 +313,47 @@ table.data-grid td:first-child{font-weight:700;color:var(--hm-red)}
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
 .border-glow-inner{position:relative;border-radius:16.5px;background:var(--glass-bg);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);border:1px solid var(--glass-border);padding:20px;height:100%}
 .border-glow-inner h3{font-size:16px;margin-bottom:6px}
+
+/* ---- document cards (clickable, open a viewer) ---- */
+.doc-list{display:flex;flex-direction:column;gap:14px;margin-top:22px}
+.doc-card{position:relative;display:flex;gap:18px;padding:20px 24px;border-radius:var(--r);overflow:hidden;
+  width:100%;text-align:left;font-family:inherit;color:inherit;cursor:pointer;
+  background:var(--glass-bg);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
+  border:1px solid var(--glass-border);box-shadow:var(--glass-shadow);transition:box-shadow .3s,border-color .3s,transform .25s}
+.doc-card::after{content:"";position:absolute;top:-60px;right:-60px;width:170px;height:170px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,var(--hm-red-bright),rgba(192,23,24,.3) 35%,transparent 70%);opacity:.14}
+.dark .doc-card::after{opacity:.24}
+.doc-card:hover{border-color:rgba(192,23,24,.32);box-shadow:var(--glass-shadow-lg)}
+.doc-card:hover::after{opacity:.3}
+.doc-card:focus-visible{outline:2px solid var(--hm-red-bright);outline-offset:2px}
+.doc-content{flex:1;min-width:0;z-index:1}
+.doc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.doc-head b{font-size:15.5px;color:var(--text)}
+.doc-type{font-size:11px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
+.doc-summary{margin:9px 0 0;font-size:13.5px;color:var(--text-2);line-height:1.65}
+.doc-open{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:12.5px;font-weight:700;color:var(--hm-red-bright);letter-spacing:.01em}
+.doc-open span{transition:transform .2s}
+.doc-card:hover .doc-open span{transform:translateX(4px)}
+
+/* ---- document viewer (blurred backdrop + paper sheet) ---- */
+.doc-overlay{position:fixed;inset:0;z-index:120;display:flex;align-items:flex-start;justify-content:center;
+  padding:48px 20px;overflow-y:auto;background:rgba(10,12,16,.55);
+  backdrop-filter:blur(10px) saturate(120%);-webkit-backdrop-filter:blur(10px) saturate(120%)}
+.doc-sheet{position:relative;width:100%;max-width:720px;margin:auto;border-radius:18px;
+  background:var(--bg-2);border:1px solid var(--glass-hair);
+  box-shadow:0 30px 90px rgba(0,0,0,.45);padding:38px 42px 40px}
+.dark .doc-sheet{background:#1A1F27;border-color:rgba(255,255,255,.08)}
+.doc-sheet-head{border-bottom:1px solid var(--line-2);padding-bottom:18px;margin-bottom:6px}
+.doc-sheet-head h2{font-family:"Sora",sans-serif;font-weight:800;font-size:24px;line-height:1.2;margin:8px 0 0;color:var(--text)}
+.doc-sheet-meta{margin-top:8px;font-size:12.5px;color:var(--text-3);font-weight:600}
+.doc-sheet-body{padding-top:8px}
+.doc-sheet-body h3{font-family:"Sora",sans-serif;font-weight:700;font-size:15px;color:var(--text);margin:22px 0 8px}
+.doc-sheet-body p{font-size:14.5px;line-height:1.7;color:var(--text-2);margin:0 0 4px}
+.doc-sheet-body ul.clean{margin:6px 0 4px;padding-left:0;list-style:none}
+.doc-sheet-body ul.clean li{position:relative;padding-left:20px;font-size:14px;line-height:1.65;color:var(--text-2);margin:7px 0}
+.doc-sheet-body ul.clean li::before{content:"";position:absolute;left:4px;top:9px;width:6px;height:6px;border-radius:50%;background:var(--hm-red-bright)}
+.doc-sheet-img{display:block;max-width:300px;width:60%;background:#fff;border-radius:12px;padding:18px 24px;margin:6px 0 18px;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.doc-close{position:absolute;top:16px;right:18px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line-2);
+  background:var(--glass-bg);color:var(--text-2);font-size:22px;line-height:1;cursor:pointer;display:grid;place-items:center;transition:.18s}
+.doc-close:hover{background:var(--hm-red-bright);color:#fff;border-color:transparent}
+@media(max-width:600px){.doc-sheet{padding:30px 22px 32px}.doc-overlay{padding:24px 12px}}

@@ -90,17 +90,172 @@ export const TASKS = {
 };
 
 export const OPEN_ITEMS = [
-  ["Confirm rate and weekly hours for the initial freelance engagement", "CW", "Chris", ["To confirm", "p-wait"]],
+  ["Confirm start and end milestones, mid-points, expectations, and prototype confirmations as next steps", "CW", "Chris · Kalyan", ["Next steps", "p-q"]],
   ["Share the live demo link / handoff method for review", "KA", "Kalyan", ["After build", "p-wait"]],
 ];
 
+// Next steps & working agreement — a sub-checklist documenting how the engagement proceeds.
+export const CHECKLIST = [
+  {
+    label: "Engagement",
+    title: "Working terms",
+    points: ["Weekly hours and availability", "Rate for the initial freelance engagement", "Check-in rhythm: a short call at each milestone or twice weekly"],
+    status: ["To confirm", "p-wait"],
+  },
+  {
+    label: "Technical",
+    title: "Stack & front-end model",
+    points: ["Web: React + Vite; Next.js if it must match the live MVP", "Mobile: React Native + Expo — one codebase for iOS and Android", "Services & data: Node + PostgreSQL, aligned to the existing MVP", "TypeScript, clean component architecture, shared design tokens"],
+    status: ["Proposed · to confirm", "p-q"],
+  },
+  {
+    label: "Build",
+    title: "Prototype scope & confirmation",
+    points: ["v1: single circular isolation zone, Google Maps, GPS, sample data", "Distances are placeholders; ERG / wind / day-night are future scope", "One-page scope signed off before any build begins"],
+    status: ["Direction confirmed", "p-ok"],
+  },
+  {
+    label: "Process",
+    title: "Design → content → wireframe",
+    points: ["Wireframe the on-scene flow: map, product select, info panel", "Align UI copy and content with the confirmed scope", "Share an interactive prototype for review before any polish"],
+    status: ["Next step", "p-q"],
+  },
+  {
+    label: "Milestones",
+    title: "What each milestone solves",
+    points: ["Start — scoped plan signed off: a shared understanding on record", "Mid-point — core flow demoed: direction corrected early and cheaply", "End — working prototype + source-code review + short technical summary"],
+    status: ["To agree", "p-wait"],
+  },
+  {
+    label: "Documentation",
+    title: "Single source of truth",
+    points: ["This portal holds scope, milestones, owners, decisions and every document", "Each artifact indexed and version-controlled under the project", "It is the moving-forward record CTS can check at any time"],
+    status: ["In place", "p-ok"],
+  },
+];
+
 export const DOCS = [
-  ["SPEC", "HM Intel Developer Trial Project", "The brief from CTS: scenario, requirements, sample data, evaluation focus", ["Received", "p-ok"]],
-  ["Q", "Discovery & Ways-of-Working Agenda", "48 questions across 9 themes, in Kalyan's voice, for the Jun 1 call", ["Sent", "p-ok"]],
-  ["ANS", "Chris's answers to the discovery questions", "CTS responses on background, vision, workflow, scope and success criteria", ["Received", "p-ok"]],
-  ["BR", "HM Intel Brand System", "Palette, type and components derived from the logo (see Brand System)", ["v1", "p-prog"]],
-  ["APP", "Project portal (React)", "This portal — React + Vite + Framer Motion; versioned under Kalyan", ["v1", "p-prog"]],
-  ["IMG", "Logo & branding materials", "Provided by Chris, used for the brand system and this portal", ["Received", "p-ok"]],
+  {
+    title: "HM Intel Developer Trial Project", type: "Brief from CTS · .docx", status: ["Received", "p-ok"],
+    summary: "The trial brief from Chris and Ryan. It sets the scenario — a first responder arriving at a dangerous-goods incident — and the core requirements: device GPS on a Google Map, dangerous-goods product selection, an isolation-distance overlay, and an information panel. It includes a mock wireframe, five sample DG entries, the expectations, optional enhancements, and the five things the trial is judged on: development approach, code organisation, UI/UX thinking, communication, and how requirements and assumptions are handled.",
+    meta: "Commercial Transport Solutions · Developer trial",
+    body: [
+      ["h", "The scenario"],
+      ["p", "A first responder arrives at the scene of an incident involving a vehicle carrying dangerous goods. Using HM Intel they need to quickly identify the product involved, see their own location on a map, and understand the area that should be isolated around the incident."],
+      ["h", "Core requirements"],
+      ["list", [
+        "Show the device's current location on a Google Map, handling location permissions cleanly.",
+        "Let the responder select a dangerous-goods product from sample data.",
+        "Draw an isolation zone around the incident based on the selected product.",
+        "Show an information panel: UN number, proper name, hazard class, ERG guide, isolation / protective distances, and an emergency contact.",
+        "Use a clean mock-data structure and clear, well-organised code.",
+      ]],
+      ["h", "Sample data"],
+      ["p", "Five representative dangerous-goods entries are provided (for example Gasoline UN1203 and Chlorine UN1017) with their hazard class, ERG guide number, and isolation and protective-action distances, to be used as placeholders."],
+      ["h", "What is being evaluated"],
+      ["p", "This is explicitly a prototype, not a production system. The trial is judged on five things: development approach, code organisation, UI and UX thinking, communication, and how requirements and assumptions are handled."],
+      ["h", "Optional enhancements"],
+      ["list", [
+        "Move the incident point on the map.",
+        "Toggle between metres and kilometres.",
+        "A separate downwind protective zone with wind direction.",
+        "Offline fallback messaging and a mobile-first layout.",
+      ]],
+    ],
+  },
+  {
+    title: "Discovery & Ways-of-Working Agenda", type: "Sent by Kalyan · .docx", status: ["Sent", "p-ok"],
+    summary: "A discovery agenda of 48 questions across nine themes — background, product, users, the isolation feature, data, regulatory, technical, the trial itself, and the working relationship — written in Kalyan's own voice for the June 1 call. The highest-leverage questions are starred, and a short research summary on CTS, HM Intel and the ERG opens the document so the meeting is spent on decisions rather than basics.",
+    meta: "Prepared for the June 1 discovery call",
+    body: [
+      ["h", "Purpose"],
+      ["p", "To agree scope, assumptions and the working rhythm before any code is written, so the prototype reflects where HM Intel is actually going rather than my guesses. The aim is for the call to be spent on decisions, not basics."],
+      ["h", "Pre-read research"],
+      ["p", "A short summary opens the document covering Commercial Transport Solutions, what HM Intel appears to be, and how the Emergency Response Guidebook (ERG) defines isolation and protective-action distances — so everyone starts from the same baseline."],
+      ["h", "The nine themes"],
+      ["list", [
+        "Background & context for HM Intel and the trial.",
+        "The product and where it is heading.",
+        "Users and their real on-scene workflow.",
+        "The isolation-distance feature specifically.",
+        "Data — sources, shape, and source of truth.",
+        "Regulatory and standards considerations.",
+        "Technical stack, architecture and constraints.",
+        "The trial — scope, deliverables and how it is judged.",
+        "The working relationship and what good looks like.",
+      ]],
+      ["h", "Highest-leverage questions (starred)"],
+      ["p", "A subset is marked as the questions that most change the build: the exact isolation model expected for the trial, whether distances are placeholders or must be accurate, the confirmed stack, and the deliverable format for review."],
+    ],
+  },
+  {
+    title: "Chris's answers to the discovery questions", type: "From CTS · .docx", status: ["Received", "p-ok"],
+    summary: "CTS's written responses that lock in the shared understanding: HM Intel as a hazardous-materials intelligence platform and companion to DG Vault; the primary users (firefighters and hazmat responders) and their on-scene workflow; the trial scope (a single circular isolation zone with Google Maps, GPS and sample data, with distances as placeholders); the MVP stack (React, React Native, Next.js, PostgreSQL); the deliverable format (live demo, code review, technical summary); and the role direction, an initial freelance engagement that can grow into technical leadership.",
+    meta: "Written responses from Chris, CTS",
+    body: [
+      ["h", "What HM Intel is"],
+      ["p", "A hazardous-materials intelligence platform and a companion to DG Vault, aimed at giving emergency responders fast, reliable information at the scene of a dangerous-goods incident."],
+      ["h", "Users and workflow"],
+      ["p", "The primary users are firefighters and hazmat responders. On scene they need to identify the product, understand the hazard, and establish a safe perimeter quickly, often under pressure and in poor conditions."],
+      ["h", "Trial scope"],
+      ["p", "A single circular isolation zone, using Google Maps, device GPS and the provided sample data. Distances can be treated as placeholders for the trial — the thinking and structure matter more than regulatory precision at this stage."],
+      ["h", "Stack"],
+      ["p", "The MVP direction is React, React Native, Next.js and PostgreSQL — a single ecosystem across web and mobile."],
+      ["h", "Deliverables"],
+      ["p", "A live demo, a code review walkthrough, and a short technical summary of approach, assumptions and trade-offs."],
+      ["h", "The role"],
+      ["p", "An initial freelance engagement that, if it goes well, can grow into a technical-leadership position."],
+    ],
+  },
+  {
+    title: "HM Intel Brand System", type: "Built by Kalyan · live", status: ["v1", "p-prog"],
+    summary: "An original brand system derived only from the supplied logo, the red hazard-diamond shield. It defines the palette (HM Red, Deep Maroon, Signal Red, Ink, Slate, Steel, Canvas and Red Wash), the type pairing of Sora for display and Inter for text, component patterns, and the usage do's and don'ts. The system is deliberately light and authoritative, with red used sparingly because in this domain red means alert. It is shown live in the Brand System tab.",
+    meta: "Original system · derived from the supplied logo",
+    body: [
+      ["h", "Origin"],
+      ["p", "The system is built outward from a single input — the supplied logo, a red hazard-diamond shield carrying an “i” for intelligence. Nothing is borrowed; the palette, type and patterns all trace back to that mark."],
+      ["h", "Palette"],
+      ["p", "HM Red and Deep Maroon anchor the brand, with Signal Red for emphasis, Ink and Slate for text, Steel for secondary detail, and Canvas and Red Wash for surfaces. Red is used sparingly — in this domain, red means alert."],
+      ["h", "Typography"],
+      ["p", "Sora for display and headings, Inter for body text and UI. The pairing reads as authoritative and calm rather than loud."],
+      ["h", "Components & usage"],
+      ["p", "Defines glass surfaces, pills, cards and data tables, with clear do's and don'ts so the look stays consistent across the portal and the mobile prototype. The full system is shown live in the Brand System tab."],
+    ],
+  },
+  {
+    title: "Project portal (React)", type: "Built by Kalyan · this site", status: ["v1", "p-prog"],
+    summary: "This portal itself — a React, Vite and Framer Motion application that tracks the engagement end to end: overview, roadmap and milestones, tasks and owners, meeting notes, discovery research, this document trail, the brand system, and an about page. It is version-controlled under the project and deployed for review, built as the always-current single source of truth Chris asked for so CTS never has to ask where things stand.",
+    meta: "React · Vite · Framer Motion",
+    body: [
+      ["h", "What it is"],
+      ["p", "This site — a single place to follow the HM Intel engagement end to end, built so Chris and Ryan can see exactly where things stand at any moment."],
+      ["h", "Sections"],
+      ["list", [
+        "Overview — the brief and the approach in one screen.",
+        "Roadmap & milestones — the proposed steps and check-in rhythm.",
+        "Tasks & owners — everything in motion, grouped by state.",
+        "Meeting notes — what was agreed and when.",
+        "Discovery — the research behind the questions.",
+        "Documents — this trail of artifacts.",
+        "Brand system — the live HM Intel look and feel.",
+        "About — background and fit.",
+      ]],
+      ["h", "Stack"],
+      ["p", "React, Vite and Framer Motion, version-controlled under the project and deployed for review."],
+      ["h", "Why it exists"],
+      ["p", "Chris said the hardest part with past development was visibility into progress and timelines. This portal is the answer: an always-current single source of truth, so CTS never has to ask where things stand."],
+    ],
+  },
+  {
+    title: "Logo & branding materials", type: "From CTS · .png", status: ["Received", "p-ok"],
+    summary: "The HM Intel logo and branding materials supplied by Chris — the red hazard-diamond shield carrying an “i” for intelligence. They were used to derive the brand system and to style both this portal and the mobile prototype, so every surface carries a consistent HM Intel look and feel.",
+    meta: "Supplied by CTS · source mark",
+    img: true,
+    body: [
+      ["p", "The HM Intel logo supplied by Chris — a red hazard-diamond shield carrying an “i” for intelligence."],
+      ["p", "This single mark is the source for the entire brand system, and is used to style both this portal and the mobile prototype so every surface carries a consistent HM Intel look and feel."],
+    ],
+  },
 ];
 
 export const DG = [
