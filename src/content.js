@@ -136,6 +136,11 @@ export const CHECKLIST = [
 
 export const DOCS = [
   {
+    title: "Low-Fidelity Wireframes — Isolation Distance Tool", type: "Mobile app design · interactive page", status: ["New", "p-prog"],
+    link: "/wireframes.html",
+    summary: "The first design pass for the HM Intel mobile prototype. Low-fidelity wireframes for every core screen — location permission, current location, product selection, the circular isolation zone, the information panel, set-incident, GPS-unavailable and reset — followed by the optional enhancements (move incident, metres/kilometres, multiple zones, wind placeholder, offline fallback). Structure and flow first, in the HM Intel brand, with the assumptions noted under each screen. Opens as a separate full page.",
+  },
+  {
     title: "HM Intel Developer Trial Project", type: "Brief from CTS · .docx", status: ["Received", "p-ok"],
     summary: "The trial brief from Chris and Ryan. It sets the scenario — a first responder arriving at a dangerous-goods incident — and the core requirements: device GPS on a Google Map, dangerous-goods product selection, an isolation-distance overlay, and an information panel. It includes a mock wireframe, five sample DG entries, the expectations, optional enhancements, and the five things the trial is judged on: development approach, code organisation, UI/UX thinking, communication, and how requirements and assumptions are handled.",
     meta: "Commercial Transport Solutions · Developer trial",

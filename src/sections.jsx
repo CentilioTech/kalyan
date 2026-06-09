@@ -250,12 +250,12 @@ function Docs() {
       <SectionHead eyebrow="Trail" title="Documents" lead="Every artifact for this engagement, in one index and version-controlled under the project. Click any document to open it." />
       <div className="doc-list">
         {DOCS.map((d, i) => (
-          <motion.button type="button" className="doc-card" key={d.title} onClick={() => setOpen(d)} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }} whileHover={{ y: -2 }}>
+          <motion.button type="button" className="doc-card" key={d.title} onClick={() => (d.link ? window.open(d.link, "_blank", "noopener,noreferrer") : setOpen(d))} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }} whileHover={{ y: -2 }}>
             <div className="doc-content">
               <div className="doc-head"><b>{d.title}</b><Pill kind={d.status[1]}>{d.status[0]}</Pill></div>
               <div className="doc-type">{d.type}</div>
               <p className="doc-summary">{d.summary}</p>
-              <span className="doc-open">Open document <span aria-hidden="true">→</span></span>
+              <span className="doc-open">{d.link ? "Open wireframes" : "Open document"} <span aria-hidden="true">{d.link ? "↗" : "→"}</span></span>
             </div>
           </motion.button>
         ))}
