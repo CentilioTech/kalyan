@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HM Intel — Isolation Distance Tool · High-Fidelity Screens</title>
+<link rel="icon" type="image/png" href="/hm-intel-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --hm-red:#C01718; --hm-red2:#E22B2B; --maroon:#8E0000; --wash:#FBE9E9;
+    --ink:#14181F; --slate:#3A4756; --steel:#5B6B7B; --muted:#8A929C;
+    --canvas:#F6F7F9; --line:#E6E8EC; --line2:#EFF1F4; --blue:#2D7DD2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#EAECEF;color:var(--ink);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1220px;margin:0 auto;padding:34px 24px 64px}
+  header.page{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid #D8DBE0;padding-bottom:20px}
+  .brand{display:flex;align-items:center;gap:11px}
+  .diamond{width:32px;height:32px;background:linear-gradient(135deg,var(--hm-red2),var(--maroon));border-radius:8px;display:grid;place-items:center;color:#fff;font-family:"Sora";font-weight:800;font-size:16px}
+  .brand b{font-family:"Sora";font-weight:800;font-size:19px;letter-spacing:-.01em}
+  .page h1{font-family:"Sora";font-weight:600;font-size:17px;margin:0}
+  .page .sub{color:var(--steel);font-size:13px;margin-top:2px}
+  .tag{margin-left:auto;background:var(--hm-red);color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;border-radius:999px}
+  .lede{color:var(--slate);font-size:13.5px;line-height:1.65;max-width:820px;margin:18px 0 4px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin:14px 0 6px;font-size:12px;color:var(--steel)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .sw{width:13px;height:13px;border-radius:4px;display:inline-block}
+  .sec-h{display:flex;align-items:center;gap:12px;margin:34px 0 20px}
+  .sec-h .n{width:25px;height:25px;border-radius:7px;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;font-family:"Sora"}
+  .sec-h h2{font-family:"Sora";font-weight:700;font-size:16px;margin:0}
+  .sec-h .c{color:var(--muted);font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:30px 24px}
+  .card{display:flex;flex-direction:column;gap:11px}
+  .frame-h{display:flex;align-items:baseline;gap:8px}
+  .frame-h .idx{font-family:"Sora";font-weight:700;font-size:12px;color:var(--hm-red)}
+  .frame-h .t{font-weight:600;font-size:13.5px}
+  .frame-c{font-size:12px;color:var(--steel);line-height:1.55}
+
+  /* ---- phone ---- */
+  .phone{width:100%;max-width:272px;background:#454D59;border-radius:38px;padding:5px;box-shadow:0 8px 22px rgba(20,24,31,.12)}
+  .scr{position:relative;border-radius:34px;overflow:hidden;background:#fff;aspect-ratio:272/566;display:flex;flex-direction:column}
+  .statusbar{height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 18px 0 20px;font-size:11px;font-weight:600;color:var(--ink);flex:none}
+  .statusbar .r{display:flex;align-items:center;gap:5px}
+  .island{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:70px;height:18px;background:#272c34;border-radius:12px;z-index:9}
+  .appbar{display:flex;align-items:center;gap:9px;padding:5px 13px 9px;border-bottom:1px solid var(--line2);flex:none}
+  .applogo{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--hm-red2),var(--maroon));display:grid;place-items:center;color:#fff;font-family:"Sora";font-weight:800;font-size:13px}
+  .apptt{line-height:1.05}
+  .apptt b{font-family:"Sora";font-weight:700;font-size:13px;color:var(--ink)}
+  .apptt small{display:block;font-size:9px;color:var(--muted);font-weight:500;letter-spacing:.02em}
+  .appbar .info{margin-left:auto;width:28px;height:28px;border-radius:8px;background:var(--canvas);display:grid;place-items:center;color:var(--slate)}
+
+  /* ---- map ---- */
+  .map{flex:1;position:relative;overflow:hidden;
+    background:
+      linear-gradient(#FCFBF8,#FCFBF8) 0 47%/100% 17px no-repeat,
+      linear-gradient(#FCFBF8,#FCFBF8) 58% 0/17px 100% no-repeat,
+      linear-gradient(#FCFBF8,#FCFBF8) 24% 0/11px 100% no-repeat,
+      #E8EAE3;}
+  .map .diag{position:absolute;left:-30%;top:72%;width:170%;height:15px;background:#FCFBF8;transform:rotate(-23deg)}
+  .park{position:absolute;left:0;top:0;width:38%;height:30%;background:#E5EFD8}
+  .water{position:absolute;right:-12%;bottom:-14%;width:48%;height:42%;background:#CFE2EE;border-radius:60% 0 0 0}
+  .blk{position:absolute;background:rgba(20,24,31,.045);border-radius:3px}
+  .user{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--blue);border:3px solid #fff;transform:translate(-50%,-50%);box-shadow:0 0 0 7px rgba(45,125,210,.16),0 2px 5px rgba(0,0,0,.28);z-index:4}
+  .zone{position:absolute;border-radius:50%;border:2.5px solid var(--hm-red);background:rgba(226,43,43,.12);transform:translate(-50%,-50%);z-index:3}
+  .zone.proto{border:2px dashed var(--steel);background:rgba(91,107,123,.07)}
+  .zlabel{position:absolute;transform:translate(-50%,-50%);background:var(--hm-red);color:#fff;font-size:10px;font-weight:700;font-family:"Sora";padding:3px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 3px 8px rgba(192,23,24,.45);z-index:5}
+  .pin{position:absolute;transform:translate(-50%,-100%);width:26px;z-index:6;filter:drop-shadow(0 4px 5px rgba(20,24,31,.3))}
+  .scale{position:absolute;left:10px;bottom:10px;font-size:8px;color:var(--slate);display:flex;flex-direction:column;gap:2px;align-items:flex-start;z-index:4}
+  .scale i{display:block;height:4px;width:42px;border:1px solid var(--slate);border-top:none}
+  .banner{position:absolute;left:10px;right:10px;top:10px;display:flex;gap:8px;align-items:flex-start;background:var(--ink);color:#fff;font-size:10px;line-height:1.35;padding:9px 11px;border-radius:11px;z-index:7;box-shadow:0 6px 16px rgba(20,24,31,.25)}
+  .banner.warn{background:#8a6400}.banner.off{background:var(--slate)}
+  .banner svg.lucide{width:15px;height:15px;flex:none;margin-top:1px}
+  .crosshair{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);z-index:6;color:var(--ink)}
+  .crosshair svg.lucide{width:38px;height:38px;stroke-width:1.6}
+  .windrose{position:absolute;right:11px;top:11px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.82);border:1px solid var(--line);display:grid;place-items:center;color:var(--steel);z-index:6;box-shadow:0 3px 8px rgba(0,0,0,.1)}
+  .windrose svg.lucide{width:22px;height:22px}
+  .windrose b{position:absolute;top:3px;font-size:7px;color:var(--slate);font-weight:700}
+  .hint{position:absolute;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:9px;font-weight:600;padding:5px 9px;border-radius:8px;white-space:nowrap;z-index:6}
+
+  /* ---- toolbar ---- */
+  .toolbar{display:flex;gap:5px;padding:10px 11px;border-top:1px solid var(--line);background:#fff;flex:none}
+  .tool{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:9px;font-weight:600;color:var(--slate);text-align:center;line-height:1.05}
+  .tool .ic{width:38px;height:38px;border-radius:12px;background:var(--canvas);border:1px solid var(--line);display:grid;place-items:center;color:var(--slate)}
+  .tool .ic svg.lucide{width:19px;height:19px}
+  .tool.active .ic{background:var(--hm-red);border-color:var(--hm-red);color:#fff;box-shadow:0 5px 12px rgba(192,23,24,.35)}
+  .tool.active{color:var(--hm-red)}
+  .tool.off{opacity:.42}
+
+  /* ---- buttons ---- */
+  .cta{padding:12px 14px;background:#fff;border-top:1px solid var(--line);flex:none}
+  .btn{display:flex;align-items:center;justify-content:center;gap:7px;height:44px;border-radius:13px;font-weight:600;font-size:13px;border:1px solid var(--line);cursor:default}
+  .btn svg.lucide{width:17px;height:17px}
+  .btn.primary{background:var(--hm-red);color:#fff;border-color:var(--hm-red);box-shadow:0 6px 16px rgba(192,23,24,.3)}
+  .btn.ink{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn.ghost{background:#fff;color:var(--slate)}
+  .brow{display:flex;gap:9px}.brow .btn{flex:1}
+  .mt7{margin-top:9px}
+
+  /* ---- sheet ---- */
+  .sheet{background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -10px 26px rgba(20,24,31,.08);padding:9px 14px 13px;flex:none;border-top:1px solid var(--line2)}
+  .grab{width:38px;height:4px;border-radius:3px;background:#D7DAE0;margin:0 auto 11px}
+  .search{height:38px;border:1px solid var(--line);background:var(--canvas);border-radius:12px;display:flex;align-items:center;padding:0 11px;font-size:12px;color:var(--muted);gap:8px}
+  .search svg.lucide{width:16px;height:16px;color:var(--steel)}
+  .opt{display:flex;align-items:center;gap:10px;padding:9px 3px;border-bottom:1px solid var(--line2)}
+  .opt:last-child{border:none}
+  .placard{width:30px;height:30px;border-radius:7px;transform:rotate(45deg);display:grid;place-items:center;flex:none}
+  .placard b{transform:rotate(-45deg);font-family:"Sora";font-weight:800;font-size:11px}
+  .pl-flam{background:var(--hm-red2)} .pl-flam b{color:#fff}
+  .pl-corr{background:#222a33} .pl-corr b{color:#fff}
+  .pl-tox{background:#eef1f4;border:1px solid #cdd3da} .pl-tox b{color:var(--ink)}
+  .opt .un{font-family:"Sora";font-weight:700;font-size:12px;color:var(--ink)}
+  .opt .nm{font-size:11px;color:var(--steel)}
+  .opt .gd{margin-left:auto;font-size:9px;font-weight:700;color:var(--steel);background:var(--canvas);border:1px solid var(--line);border-radius:7px;padding:3px 7px}
+  .prodhead{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+  .prodhead .un{font-family:"Sora";font-weight:800;font-size:16px;color:var(--ink);line-height:1}
+  .prodhead .nm{font-size:11px;color:var(--steel);margin-top:2px}
+  .erg{margin-left:auto;text-align:center;background:var(--ink);color:#fff;border-radius:10px;padding:5px 9px;line-height:1}
+  .erg small{display:block;font-size:7px;letter-spacing:.08em;opacity:.7;margin-bottom:2px}
+  .erg b{font-family:"Sora";font-size:13px}
+  .distbar{display:flex;gap:9px;margin-bottom:10px}
+  .dist{flex:1;border-radius:13px;padding:9px 11px;border:1px solid var(--line)}
+  .dist.iso{background:var(--wash);border-color:#f3cfcf}
+  .dist .lbl{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:5px}
+  .dist.iso .lbl{color:var(--maroon)}
+  .dist .num{font-family:"Sora";font-weight:800;font-size:21px;color:var(--ink);margin-top:3px;line-height:1}
+  .dist.iso .num{color:var(--hm-red)}
+  .dist.fut .num{color:var(--muted);font-size:18px}
+  .dist .ft{font-size:8px;color:var(--muted);margin-top:2px}
+  .kv{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;padding:7px 0;border-bottom:1px solid var(--line2)}
+  .kv .k{color:var(--muted)} .kv .v{color:var(--ink);font-weight:600}
+  .call{margin-top:11px;height:42px;border-radius:13px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+  .call svg.lucide{width:16px;height:16px}
+  .disc{display:flex;gap:7px;align-items:flex-start;font-size:9.5px;line-height:1.4;color:var(--maroon);background:var(--wash);border-radius:10px;padding:8px 10px;margin-top:10px}
+  .disc svg.lucide{width:14px;height:14px;flex:none;margin-top:1px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:11px;overflow:hidden;font-size:11px;font-weight:700}
+  .seg b{padding:7px 14px;color:var(--muted)} .seg b.on{background:var(--hm-red);color:#fff}
+  .legendrow{display:flex;gap:16px;font-size:10px;color:var(--slate);align-items:center}
+  .perm-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center}
+  .perm-ic{width:74px;height:74px;border-radius:22px;background:var(--wash);display:grid;place-items:center;color:var(--hm-red)}
+  .perm-ic svg.lucide{width:36px;height:36px}
+  .perm-hero h3{font-family:"Sora";font-weight:700;font-size:16px;margin:0;color:var(--ink)}
+  .perm-hero p{font-size:11.5px;color:var(--steel);line-height:1.5;margin:0}
+  svg.lucide{display:inline-block;vertical-align:middle}
+  /* ---- interactive walkthrough ---- */
+  .tourui{margin:6px 0 4px}
+  .tbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .tbar .count{font-family:"Sora";font-weight:700;font-size:13px;color:var(--ink)}
+  .tbar .modes{margin-left:auto;display:flex;border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  .tbar .modes button{border:none;background:#fff;color:var(--slate);font:inherit;font-size:12px;font-weight:600;padding:8px 15px;cursor:pointer}
+  .tbar .modes button.on{background:var(--ink);color:#fff}
+  .progress{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:20px}
+  .progress i{display:block;height:100%;width:8%;background:var(--hm-red);border-radius:3px;transition:width .35s ease}
+  .stage{display:flex;gap:36px;align-items:center;justify-content:center;flex-wrap:wrap;min-height:582px;padding:4px 0 14px}
+  .phoneholder{flex:none;width:272px;animation:fadein .4s ease}
+  @keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .coach{position:relative;width:100%;max-width:382px;background:#1E63C7;color:#fff;border-radius:18px;padding:20px 22px 18px;box-shadow:0 16px 36px rgba(30,99,199,.28)}
+  .coach:before{content:"";position:absolute;left:-12px;top:70px;border:7px solid transparent;border-right-color:#1E63C7}
+  .coach .badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.18);font-size:11px;font-weight:700;letter-spacing:.04em;padding:5px 11px;border-radius:999px;margin-bottom:13px}
+  .coach .badge svg.lucide{width:13px;height:13px}
+  .coach h3{font-family:"Sora";font-weight:700;font-size:19px;margin:0 0 3px}
+  .coach .sub{font-size:12.5px;color:#cfe0fb;margin:0 0 15px;line-height:1.4}
+  .coach .pt{margin:12px 0}
+  .coach .pt .l{display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#bcd5fa;margin-bottom:3px}
+  .coach .pt .l svg.lucide{width:14px;height:14px}
+  .coach .pt p{margin:0;font-size:13px;line-height:1.5;color:#fff}
+  .coach .cnav{display:flex;gap:10px;margin-top:18px}
+  .coach .cnav button{flex:1;border:none;border-radius:12px;font:inherit;font-weight:600;font-size:13px;padding:11px;cursor:pointer}
+  .coach .cnav .prev{background:rgba(255,255,255,.16);color:#fff}
+  .coach .cnav .next{background:#fff;color:#1E4FA0}
+  .coach .cnav button:disabled{opacity:.4;cursor:default}
+  .dots{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+  .dots b{width:9px;height:9px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+  .dots b.on{background:var(--hm-red);transform:scale(1.25)}
+  @media(max-width:780px){.coach:before{display:none}}
+  footer{margin-top:42px;border-top:1px solid #D8DBE0;padding-top:16px;color:var(--muted);font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <div class="brand"><span class="diamond">i</span><b>HM Intel</b></div>
+    <div>
+      <h1>Isolation Distance Tool — High-Fidelity Screens</h1>
+      <div class="sub">Mobile (iOS + Android, React Native) · full HM Intel brand · icons by Lucide</div>
+    </div>
+    <span class="tag">Hi-Fi · Interactive</span>
+  </header>
+
+  <p class="lede">A guided walkthrough of the HM Intel mobile design. Press <b>Next</b> and the blue card steps you through every screen — what it is, how it works, what it means to the responder, and what it solves — one at a time. Use <b>All screens</b> to see the full grid, or the arrow keys to move. Built in the full HM Intel brand; distances are placeholders from the trial brief.</p>
+
+  <div class="legend">
+    <span><i class="sw" style="background:var(--hm-red)"></i> HM Red — isolation / hazard / primary</span>
+    <span><i class="sw" style="background:var(--blue)"></i> Blue — your live location</span>
+    <span><i class="sw" style="background:var(--ink)"></i> Ink — text & emergency actions</span>
+    <span><i class="sw" style="background:#E5EFD8"></i> Map surface</span>
+  </div>
+
+  <div class="tourui">
+    <div class="tbar">
+      <span class="count" id="count">Step 1 / 13</span>
+      <span class="modes"><button id="mTour" class="on">Guided tour</button><button id="mGrid">All screens</button></span>
+    </div>
+    <div id="tourstage">
+      <div class="progress"><i id="bar"></i></div>
+      <div class="stage">
+        <div class="phoneholder" id="holder"></div>
+        <div class="coach" id="coach"></div>
+      </div>
+      <div class="dots" id="dots"></div>
+    </div>
+  </div>
+
+  <div id="gridmode" hidden>
+  <!-- ===================== CORE ===================== -->
+  <div class="sec-h"><span class="n">A</span><h2>Core screens</h2><span class="c">the five required features and their states</span></div>
+  <div class="grid">
+
+    <!-- 01 permission -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">01</span><span class="t">Location permission</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span></div>
+        <div class="perm-hero">
+          <div class="perm-ic"><i data-lucide="map-pin"></i></div>
+          <h3>Use your location?</h3>
+          <p>HM Intel uses your position to centre the map and draw the isolation zone around the incident. You can also set the incident by hand.</p>
+        </div>
+        <div class="cta">
+          <div class="btn primary"><i data-lucide="navigation"></i> Allow location</div>
+          <div class="btn ghost mt7"><i data-lucide="hand"></i> Set incident manually</div>
+        </div>
+      </div></div>
+      <div class="frame-c">Rationale before the OS prompt; manual fallback so the tool is never a dead end.</div>
+    </div>
+
+    <!-- 02 home -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">02</span><span class="t">Home · current location</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map">
+          <div class="diag"></div><div class="park"></div><div class="water"></div>
+          <div class="blk" style="left:30%;top:20%;width:22%;height:14%"></div><div class="blk" style="left:66%;top:55%;width:20%;height:16%"></div>
+          <div class="user" style="left:44%;top:54%"></div>
+          <div class="scale"><span>50 m</span><i></i></div>
+          <div class="banner"><i data-lucide="search"></i> Select a dangerous good to draw its isolation zone</div>
+        </div>
+        <div class="toolbar">
+          <div class="tool active"><span class="ic"><i data-lucide="locate-fixed"></i></span>Locate</div>
+          <div class="tool"><span class="ic"><i data-lucide="map-pin-plus"></i></span>Incident</div>
+          <div class="tool off"><span class="ic"><i data-lucide="circle-dashed"></i></span>Zone</div>
+          <div class="tool"><span class="ic"><i data-lucide="rotate-ccw"></i></span>Reset</div>
+        </div>
+      </div></div>
+      <div class="frame-c">Map-first. Live location as a blue dot; four-action toolbar, primary in HM Red.</div>
+    </div>
+
+    <!-- 03 product selector -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">03</span><span class="t">Product selector</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="map" style="flex:.5"><div class="diag"></div><div class="park"></div><div class="user" style="left:44%;top:46%"></div></div>
+        <div class="sheet" style="flex:1;overflow:hidden;border-radius:20px 20px 0 0;margin-top:-18px;z-index:8">
+          <div class="grab"></div>
+          <div class="search"><i data-lucide="search"></i> Search UN number or name</div>
+          <div style="margin-top:7px">
+            <div class="opt"><span class="placard pl-flam"><b>3</b></span><div><div class="un">UN 1203</div><div class="nm">Gasoline</div></div><span class="gd">ERG 128</span></div>
+            <div class="opt"><span class="placard pl-flam"><b>2</b></span><div><div class="un">UN 1075</div><div class="nm">LP gas</div></div><span class="gd">ERG 115</span></div>
+            <div class="opt"><span class="placard pl-corr"><b>8</b></span><div><div class="un">UN 1789</div><div class="nm">Hydrochloric acid</div></div><span class="gd">ERG 157</span></div>
+            <div class="opt"><span class="placard pl-tox"><b>2</b></span><div><div class="un">UN 1017</div><div class="nm">Chlorine</div></div><span class="gd">ERG 124</span></div>
+          </div>
+        </div>
+      </div></div>
+      <div class="frame-c">Searchable sheet over the sample goods; real hazard-class placards, ERG guide on the right.</div>
+    </div>
+
+    <!-- 04 isolation zone -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">04</span><span class="t">Isolation zone drawn</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map">
+          <div class="diag"></div><div class="water"></div>
+          <div class="zone" style="left:50%;top:46%;width:128px;height:128px"></div>
+          <div class="zlabel" style="left:50%;top:30%">50 m isolation</div>
+          <svg class="pin" style="left:50%;top:46%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/><path d="M14 9.4l2.4 4.2h-4.8z" fill="#C01718"/></svg>
+        </div>
+        <div class="sheet">
+          <div class="prodhead"><span class="placard pl-flam"><b>3</b></span><div><div class="un">UN 1203</div><div class="nm">Gasoline · Flammable liquid</div></div><div class="erg"><small>ERG</small><b>128</b></div></div>
+          <div class="legendrow"><span style="color:var(--muted);font-size:10px">Swipe up for full details</span><i data-lucide="chevron-up" style="margin-left:auto;color:var(--muted);width:16px"></i></div>
+        </div>
+      </div></div>
+      <div class="frame-c">A single red circle = Initial Isolation Distance, centred on the incident pin; radius labelled.</div>
+    </div>
+
+    <!-- 05 info panel -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">05</span><span class="t">Information panel</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="map" style="flex:.34"><div class="zone" style="left:50%;top:64%;width:92px;height:92px"></div>
+          <svg class="pin" style="left:50%;top:64%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/></svg>
+        </div>
+        <div class="sheet" style="flex:1;overflow:hidden">
+          <div class="grab"></div>
+          <div class="prodhead"><span class="placard pl-flam"><b>3</b></span><div><div class="un">UN 1203</div><div class="nm">Gasoline</div></div><div class="erg"><small>ERG</small><b>128</b></div></div>
+          <div class="distbar">
+            <div class="dist iso"><div class="lbl"><i data-lucide="shield" style="width:12px;height:12px"></i>Isolation</div><div class="num">50 m</div></div>
+            <div class="dist fut"><div class="lbl">Protective</div><div class="num">300 m</div><div class="ft">future · downwind</div></div>
+          </div>
+          <div class="kv"><span class="k">Hazard class</span><span class="v">3 · Flammable liquid</span></div>
+          <div class="kv"><span class="k">Shipping name</span><span class="v">Gasoline</span></div>
+          <div class="kv"><span class="k">Emergency contact</span><span class="v">CANUTEC</span></div>
+          <div class="call"><i data-lucide="phone"></i> Call CANUTEC · *666</div>
+          <div class="disc"><i data-lucide="alert-triangle"></i> Placeholder data — always verify against the current ERG on scene.</div>
+        </div>
+      </div></div>
+      <div class="frame-c">All brief fields; protective distance shown muted as future; CANUTEC tap-to-call; persistent disclaimer.</div>
+    </div>
+
+    <!-- 06 set incident -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">06</span><span class="t">Set incident location</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Setting incident location</small></span><span class="info"><i data-lucide="x"></i></span></div>
+        <div class="map">
+          <div class="diag"></div><div class="park"></div>
+          <div class="banner"><i data-lucide="move"></i> Drag the map so the crosshair sits on the incident</div>
+          <div class="crosshair"><i data-lucide="crosshair"></i></div>
+          <div class="hint" style="top:58%">Incident here</div>
+        </div>
+        <div class="cta"><div class="btn ink"><i data-lucide="check"></i> Confirm incident location</div></div>
+      </div></div>
+      <div class="frame-c">Centre crosshair to place; confirm to drop the pin. Defaults to current location if skipped.</div>
+    </div>
+
+    <!-- 07 gps unavailable -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">07</span><span class="t">GPS unavailable</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal-zero"></i><i data-lucide="wifi-off"></i><i data-lucide="battery-medium"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map" style="filter:saturate(.6)">
+          <div class="diag"></div>
+          <div class="banner warn"><i data-lucide="alert-triangle"></i> Location unavailable. Set the incident manually or retry GPS.</div>
+        </div>
+        <div class="cta"><div class="brow"><div class="btn ghost"><i data-lucide="rotate-cw"></i> Retry</div><div class="btn primary"><i data-lucide="map-pin-plus"></i> Set manually</div></div></div>
+      </div></div>
+      <div class="frame-c">Non-blocking error: the tool stays usable by hand; clear recovery actions.</div>
+    </div>
+
+    <!-- 08 empty / reset -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">08</span><span class="t">Empty / reset</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map">
+          <div class="diag"></div><div class="park"></div><div class="water"></div>
+          <div class="user" style="left:46%;top:52%"></div>
+          <div class="banner"><i data-lucide="package-search"></i> No product selected — choose one to begin</div>
+        </div>
+        <div class="toolbar">
+          <div class="tool active"><span class="ic"><i data-lucide="locate-fixed"></i></span>Locate</div>
+          <div class="tool"><span class="ic"><i data-lucide="map-pin-plus"></i></span>Incident</div>
+          <div class="tool off"><span class="ic"><i data-lucide="circle-dashed"></i></span>Zone</div>
+          <div class="tool"><span class="ic"><i data-lucide="rotate-ccw"></i></span>Reset</div>
+        </div>
+      </div></div>
+      <div class="frame-c">Reset clears product, zone and incident but keeps current location; zone disabled until a product exists.</div>
+    </div>
+
+  </div>
+
+  <!-- ===================== OPTIONAL ===================== -->
+  <div class="sec-h"><span class="n">B</span><h2>Optional enhancements</h2><span class="c">the brief's "nice to have" set</span></div>
+  <div class="grid">
+
+    <!-- 09 move incident -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">09</span><span class="t">Move incident on map</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map">
+          <div class="diag"></div>
+          <div class="zone" style="left:54%;top:50%;width:116px;height:116px"></div>
+          <div style="position:absolute;left:54%;top:50%;width:34px;height:34px;border-radius:50%;border:2px dashed var(--steel);transform:translate(-50%,-50%);z-index:5"></div>
+          <svg class="pin" style="left:54%;top:50%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/></svg>
+          <div class="hint" style="top:70%"><i data-lucide="move" style="width:11px;vertical-align:-2px"></i> Drag to reposition</div>
+        </div>
+        <div class="cta"><div class="btn primary"><i data-lucide="check"></i> Done</div></div>
+      </div></div>
+      <div class="frame-c">Long-press to grab the pin; the zone follows live; haptic tick on drop.</div>
+    </div>
+
+    <!-- 10 units -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">10</span><span class="t">Metres / kilometres</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map">
+          <div class="diag"></div>
+          <div class="zone" style="left:50%;top:46%;width:140px;height:140px"></div>
+          <div class="zlabel" style="left:50%;top:25%">0.30 km isolation</div>
+          <svg class="pin" style="left:50%;top:46%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/></svg>
+        </div>
+        <div class="sheet"><div class="grab"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:var(--slate);font-weight:600"><i data-lucide="ruler" style="width:15px;vertical-align:-3px"></i> Distance units</span><span class="seg"><b>m</b><b class="on">km</b></span></div>
+        </div>
+      </div></div>
+      <div class="frame-c">Segmented toggle, default metres; label and overlay rescale instantly; choice persists.</div>
+    </div>
+
+    <!-- 11 multiple zones -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">11</span><span class="t">Multiple distance zones</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="layers"></i></span></div>
+        <div class="map">
+          <div class="diag"></div>
+          <div class="zone proto" style="left:50%;top:50%;width:178px;height:178px"></div>
+          <div class="zone" style="left:50%;top:50%;width:84px;height:84px"></div>
+          <svg class="pin" style="left:50%;top:50%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/></svg>
+          <div class="banner off"><i data-lucide="flask-conical"></i> Protective zone is a future preview, not trial scope</div>
+        </div>
+        <div class="sheet"><div class="grab"></div>
+          <div class="legendrow"><span><i class="sw" style="background:var(--hm-red)"></i> Isolation 50 m</span><span><i class="sw" style="background:var(--steel)"></i> Protective 300 m</span></div>
+        </div>
+      </div></div>
+      <div class="frame-c">Concentric circles: solid red isolation, dashed steel protective. Flagged as future preview.</div>
+    </div>
+
+    <!-- 12 wind -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">12</span><span class="t">Wind direction placeholder</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map">
+          <div class="diag"></div>
+          <div class="windrose"><b>N</b><i data-lucide="navigation"></i></div>
+          <div class="zone" style="left:48%;top:53%;width:116px;height:116px"></div>
+          <svg class="pin" style="left:48%;top:53%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/></svg>
+          <div class="banner off"><i data-lucide="wind"></i> Wind shown as a placeholder — not wired to live data yet</div>
+        </div>
+        <div class="cta"><div class="btn ghost"><i data-lucide="eye-off"></i> Hide wind</div></div>
+      </div></div>
+      <div class="frame-c">A compass placeholder reserving the spot for the future downwind model. Clearly labelled.</div>
+    </div>
+
+    <!-- 13 offline -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">13</span><span class="t">Offline fallback</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="airplay"></i><i data-lucide="wifi-off"></i><i data-lucide="battery-medium"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map" style="filter:grayscale(.85)">
+          <div class="diag"></div>
+          <div class="banner off"><i data-lucide="wifi-off"></i> Offline — sample data &amp; last map tiles in use</div>
+          <div class="zone" style="left:50%;top:54%;width:104px;height:104px"></div>
+          <svg class="pin" style="left:50%;top:54%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/></svg>
+        </div>
+        <div class="toolbar">
+          <div class="tool"><span class="ic"><i data-lucide="locate-fixed"></i></span>Locate</div>
+          <div class="tool"><span class="ic"><i data-lucide="map-pin-plus"></i></span>Incident</div>
+          <div class="tool active"><span class="ic"><i data-lucide="circle-dot"></i></span>Zone</div>
+          <div class="tool"><span class="ic"><i data-lucide="rotate-ccw"></i></span>Reset</div>
+        </div>
+      </div></div>
+      <div class="frame-c">Persistent banner; sample data and isolation math keep working; map degrades to last tiles.</div>
+    </div>
+
+  </div>
+
+  </div>
+  <footer>
+    High-fidelity screens · HM Intel Isolation Distance Tool · core (01–08) then optional (09–13). Built from the approved low-fidelity wireframes, in the full HM Intel brand, icons by Lucide. Hazard placards and distances are placeholders from the trial brief — verify against the current ERG.
+  </footer>
+</div>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+window.lucide&&lucide.createIcons();
+var COACH=[
+{t:"Allow location",sub:"First-run permission, on your terms.",pts:[
+["eye","What it is","The very first screen — it explains why HM Intel wants your location before the system's own permission dialog appears."],
+["mouse-pointer-click","How it works","One plain-language reason, an Allow button, and a 'Set incident manually' fallback if you'd rather not share GPS."],
+["hard-hat","For the responder","You know exactly why the app needs GPS, so the OS prompt is never a surprise or a guess."],
+["circle-check","What it solves","Permission prompts that get denied out of confusion — and it guarantees the tool still works with location off."]]},
+{t:"Home · current location",sub:"Where am I, the moment I open the app.",pts:[
+["eye","What it is","The main map screen, centred on your live position (the blue dot) the instant the app launches."],
+["mouse-pointer-click","How it works","Map-first, with a four-action toolbar — Locate, Incident, Zone, Reset — and a prompt to pick a product."],
+["hard-hat","For the responder","One glance orients you on a real map; every action is a single thumb-tap on the bottom bar, glove-friendly."],
+["circle-check","What it solves","The 'where am I' problem on arrival — no setup, no menus, just your position in context."]]},
+{t:"Product selector",sub:"Match the placard, find the product.",pts:[
+["eye","What it is","A searchable list of dangerous goods, opened as a bottom sheet over the map."],
+["mouse-pointer-click","How it works","Search by UN number or name; each row shows the real hazard-class placard and its ERG guide number."],
+["hard-hat","For the responder","You match the placard on the truck to the same placard in the app — the visual language you're trained on."],
+["circle-check","What it solves","Fast, unambiguous identification of the product — the first thing you must determine on scene."]]},
+{t:"Isolation zone drawn",sub:"A distance becomes a place.",pts:[
+["eye","What it is","The map with a single red circle — the Initial Isolation Distance — drawn around the incident."],
+["mouse-pointer-click","How it works","Selecting a product drops a red incident pin and draws the circle at the brief's distance, labelled (e.g. 50 m)."],
+["hard-hat","For the responder","An instant spatial sense of 'keep everyone outside this circle' — distance you can see, not a number to imagine."],
+["circle-check","What it solves","Turning an ERG table value into an actionable perimeter you can hold and communicate."]]},
+{t:"Information panel",sub:"Everything to brief the team, in one pull-up.",pts:[
+["eye","What it is","The full detail sheet for the selected product."],
+["mouse-pointer-click","How it works","Isolation distance is prominent, protective distance is shown but muted as future, with class, name, ERG guide and a CANUTEC call button."],
+["hard-hat","For the responder","One screen to brief the crew and call for guidance — with a single tap to reach CANUTEC."],
+["circle-check","What it solves","Scattered references (book, phone, radio) collapsed into one place, with honest 'verify against ERG' framing."]]},
+{t:"Set incident location",sub:"Where the hazard is — not where you stand.",pts:[
+["eye","What it is","Placement mode for the incident point — the centre of the zone — reached from the Incident tool."],
+["mouse-pointer-click","How it works","A fixed crosshair: drag the map so it sits on the incident, confirm, and the zone redraws there."],
+["hard-hat","For the responder","You stand at a safe standoff yet still centre the danger circle on the actual spill ahead of you."],
+["circle-check","What it solves","The accuracy gap — the perimeter is around the hazard, not around the phone in your hand."]]},
+{t:"GPS unavailable",sub:"A dead signal never stops the job.",pts:[
+["eye","What it is","The degraded state when location can't be read — poor signal, denied, or indoors."],
+["mouse-pointer-click","How it works","A non-blocking banner offers Retry and Set-manually; the rest of the tool stays fully usable."],
+["hard-hat","For the responder","You place the incident by hand and keep moving — no hard stop at a critical moment."],
+["circle-check","What it solves","Real-world signal failure at incident sites, which is common and can't be allowed to block the tool."]]},
+{t:"Empty / reset",sub:"A clean slate for the next assessment.",pts:[
+["eye","What it is","The clean state — your location shown, no product, no zone — and where Reset returns you."],
+["mouse-pointer-click","How it works","Reset clears product, zone and incident but keeps your location; Zone stays disabled until a product is chosen."],
+["hard-hat","For the responder","A fast way to start over for a new product or a re-assessment without restarting the app."],
+["circle-check","What it solves","Stale data carrying between assessments — every evaluation starts clean and deliberate."]]},
+{t:"Move incident on map",sub:"Nudge the perimeter as you learn more.",pts:[
+["eye","What it is","Fine-tuning of the incident point after it has been placed (optional enhancement)."],
+["mouse-pointer-click","How it works","Long-press to grab the pin and drag; the zone follows live; a haptic tick confirms the drop."],
+["hard-hat","For the responder","Quick correction as you get a clearer read on where the leak or source actually is."],
+["circle-check","What it solves","First placements are rough — the perimeter must be easy to adjust as understanding improves."]]},
+{t:"Metres / kilometres",sub:"Read distance in your agency's unit.",pts:[
+["eye","What it is","A units toggle for the isolation and protective distances (optional enhancement)."],
+["mouse-pointer-click","How it works","A segmented m / km control, default metres; the label and overlay rescale instantly and the choice persists."],
+["hard-hat","For the responder","Distances appear in the unit you and your agency actually use — no mental conversion."],
+["circle-check","What it solves","Unit mismatch and conversion errors when calling out a perimeter under pressure."]]},
+{t:"Multiple distance zones",sub:"A glimpse of the full ERG model.",pts:[
+["eye","What it is","A preview of the isolation zone plus a protective-action zone as concentric circles (future, not trial scope)."],
+["mouse-pointer-click","How it works","Solid red isolation inside, dashed steel protective outside, clearly flagged as a future preview."],
+["hard-hat","For the responder","Shows the difference between responder-only isolation and the public protective-action area."],
+["circle-check","What it solves","Signals where the product is heading — full ERG semantics — without overbuilding the trial."]]},
+{t:"Wind direction placeholder",sub:"Reserved space for the downwind model.",pts:[
+["eye","What it is","A compass / wind marker that reserves the spot for wind-aware protective zones (future)."],
+["mouse-pointer-click","How it works","A non-functional rose, clearly labelled as a placeholder and not wired to live data."],
+["hard-hat","For the responder","A visible promise that downwind, wind-aware guidance is on the roadmap."],
+["circle-check","What it solves","Communicates intent for the directional protective distance the trial deliberately leaves out."]]},
+{t:"Offline fallback",sub:"The core answer survives dead zones.",pts:[
+["eye","What it is","How the tool behaves with no connection."],
+["mouse-pointer-click","How it works","A persistent offline banner; sample data and the isolation maths keep working; the map degrades to last tiles."],
+["hard-hat","For the responder","Incidents happen in dead zones — the isolation answer still appears without signal."],
+["circle-check","What it solves","Connectivity gaps at real sites; a safety-critical function can't depend on a network."]]}
+];
+(function(){
+  var cards=[].slice.call(document.querySelectorAll('#gridmode .card'));
+  var holder=document.getElementById('holder'),coach=document.getElementById('coach'),bar=document.getElementById('bar');
+  var count=document.getElementById('count'),dots=document.getElementById('dots');
+  var mTour=document.getElementById('mTour'),mGrid=document.getElementById('mGrid');
+  var tourstage=document.getElementById('tourstage'),grid=document.getElementById('gridmode');
+  var i=0,n=cards.length;
+  cards.forEach(function(_,k){var b=document.createElement('b');b.onclick=function(){i=k;render();};dots.appendChild(b);});
+  function render(){
+    holder.innerHTML=cards[i].querySelector('.phone').outerHTML;
+    var c=COACH[i]||{t:'',sub:'',pts:[]};
+    var pts=c.pts.map(function(p){return '<div class="pt"><div class="l"><i data-lucide="'+p[0]+'"></i>'+p[1]+'</div><p>'+p[2]+'</p></div>';}).join('');
+    coach.innerHTML='<span class="badge"><i data-lucide="route"></i>Step '+(i+1)+' of '+n+'</span><h3>'+c.t+'</h3><p class="sub">'+c.sub+'</p>'+pts+'<div class="cnav"><button class="prev"'+(i===0?' disabled':'')+'>Back</button><button class="next">'+(i===n-1?'Restart':'Next')+'</button></div>';
+    coach.querySelector('.prev').onclick=function(){if(i>0){i--;render();}};
+    coach.querySelector('.next').onclick=function(){i=(i+1)%n;render();};
+    bar.style.width=((i+1)/n*100)+'%';
+    count.textContent='Step '+(i+1)+' / '+n+'  ·  '+cards[i].querySelector('.frame-h .t').textContent;
+    [].forEach.call(dots.children,function(b,k){b.className=(k===i?'on':'');});
+    if(window.lucide)lucide.createIcons();
+  }
+  function setMode(t){
+    if(t){tourstage.hidden=false;grid.hidden=true;mTour.className='on';mGrid.className='';count.style.display='';}
+    else{tourstage.hidden=true;grid.hidden=false;mTour.className='';mGrid.className='on';count.style.display='none';}
+  }
+  mTour.onclick=function(){setMode(true);};
+  mGrid.onclick=function(){setMode(false);};
+  document.addEventListener('keydown',function(e){if(!grid.hidden)return;if(e.key==='ArrowRight'){i=(i+1)%n;render();}else if(e.key==='ArrowLeft'&&i>0){i--;render();}});
+  render();setMode(true);
+})();
+</script>
+</body>
+</html>

@@ -136,8 +136,14 @@ export const CHECKLIST = [
 
 export const DOCS = [
   {
+    title: "High-Fidelity Wireframes — Isolation Distance Tool", type: "Mobile app design · interactive walkthrough", status: ["New", "p-prog"],
+    link: "/hifi.html",
+    summary: "An interactive, guided walkthrough of the HM Intel mobile design in the full brand. Step through every screen — location permission, current location, product selection, the circular isolation zone, the information panel, set-incident, GPS-unavailable and reset, then the optional enhancements (move incident, metres/kilometres, multiple zones, wind placeholder, offline) — each with a short explanation of what it is, how it works, what it means to the responder, and what it solves. Opens as a separate full page; use Next / Back or the arrow keys.",
+  },
+  {
     title: "Low-Fidelity Wireframes — Isolation Distance Tool", type: "Mobile app design · interactive page", status: ["New", "p-prog"],
     link: "/wireframes.html",
+    hidden: true,
     summary: "The first design pass for the HM Intel mobile prototype. Low-fidelity wireframes for every core screen — location permission, current location, product selection, the circular isolation zone, the information panel, set-incident, GPS-unavailable and reset — followed by the optional enhancements (move incident, metres/kilometres, multiple zones, wind placeholder, offline fallback). Structure and flow first, in the HM Intel brand, with the assumptions noted under each screen. Opens as a separate full page.",
   },
   {
