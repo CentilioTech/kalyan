@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "HM Intel",
+    "slug": "hm-intel-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/hm-intel-logo.png",
+    "userInterfaceStyle": "light",
+    "scheme": "hmintel",
+    "splash": { "image": "./assets/hm-intel-logo.png", "resizeMode": "contain", "backgroundColor": "#FFFFFF" },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ca.ctsolutions.hmintel",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "HM Intel uses your location to place the incident and draw the isolation zone around it."
+      }
+    },
+    "android": {
+      "package": "ca.ctsolutions.hmintel",
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+      "config": { "googleMaps": { "apiKey": "REPLACE_WITH_ANDROID_GOOGLE_MAPS_API_KEY" } }
+    },
+    "plugins": [
+      ["expo-location", { "locationWhenInUsePermission": "HM Intel uses your location to place the incident and draw the isolation zone around it." }]
+    ]
+  }
+}
