@@ -47,11 +47,20 @@ export function useLocation() {
         setState({ location: null, loading: false, error: "Location permission denied. You can still tap the map to set the incident." });
         return null;
       }
-      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-      const loc: LatLng = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
-      setState({ location: loc, loading: false, error: null });
+      // Start the live watch first, so fixes arrive even if the one-shot read is slow.
       startWatching().catch(() => {});
-      return loc;
+      // One-shot fix, but never hang the UI if the device has no fix yet (emulators, cold GPS).
+      const pos = await Promise.race([
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
+      ]);
+      if (pos) {
+        const loc: LatLng = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+        setState({ location: loc, loading: false, error: null });
+        return loc;
+      }
+      setState((s) => ({ ...s, loading: false }));
+      return null;
     } catch (e) {
       setState({ location: null, loading: false, error: "Could not get your location. Tap the map to set the incident manually." });
       return null;

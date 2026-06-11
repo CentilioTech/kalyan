@@ -11,9 +11,11 @@ export default function App() {
   const [entered, setEntered] = useState(false);
   const locationApi = useLocation();
 
-  const handleAllow = async () => {
-    await locationApi.requestLocation();
+  const handleAllow = () => {
+    // Enter immediately; the location fills in via the live watch. Never block
+    // the UI on a one-shot GPS read (which can hang when there's no fix yet).
     setEntered(true);
+    locationApi.requestLocation();
   };
 
   return (
