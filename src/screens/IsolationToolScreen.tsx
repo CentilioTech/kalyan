@@ -177,25 +177,30 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
         )}
       </View>
 
-      <ScrollView style={styles.sheet} contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
-        {selected ? (
-          <InfoPanel good={selected} units={units} onChangeProduct={() => setPickerOpen(true)} />
-        ) : (
-          <Text style={styles.help}>Tap “Select a dangerous good” above, then set the incident to draw the isolation zone.</Text>
-        )}
+      <View style={styles.sheet}>
+        <ScrollView style={styles.sheetScroll} contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
+          {selected ? (
+            <InfoPanel good={selected} units={units} onChangeProduct={() => setPickerOpen(true)} />
+          ) : (
+            <Text style={styles.help}>Tap “Select a dangerous good” above, then set the incident to draw the isolation zone.</Text>
+          )}
+        </ScrollView>
 
-        <MapControls
-          onUseCurrent={handleUseCurrent}
-          onSetIncident={() => setSettingIncident((s) => !s)}
-          onToggleZone={() => setZoneVisible((z) => !z)}
-          onReset={handleReset}
-          settingIncident={settingIncident}
-          zoneVisible={zoneVisible}
-          zoneEnabled={zoneEnabled}
-          units={units}
-          onToggleUnits={() => setUnits((u) => (u === "m" ? "km" : "m"))}
-        />
-      </ScrollView>
+        {/* Toolbar stays pinned and always visible — Locate/Incident/Zone/Reset must be reachable. */}
+        <View style={styles.toolbarWrap}>
+          <MapControls
+            onUseCurrent={handleUseCurrent}
+            onSetIncident={() => setSettingIncident((s) => !s)}
+            onToggleZone={() => setZoneVisible((z) => !z)}
+            onReset={handleReset}
+            settingIncident={settingIncident}
+            zoneVisible={zoneVisible}
+            zoneEnabled={zoneEnabled}
+            units={units}
+            onToggleUnits={() => setUnits((u) => (u === "m" ? "km" : "m"))}
+          />
+        </View>
+      </View>
 
       <ProductSelector visible={pickerOpen} onClose={() => setPickerOpen(false)} onSelect={onSelectGood} />
     </View>
@@ -222,7 +227,9 @@ const styles = StyleSheet.create({
   alertBody: { flex: 1 },
   alertTitle: { color: colors.paper, fontSize: 13.5, fontWeight: "800" },
   alertText: { color: colors.paper, fontSize: 11.5, fontWeight: "500", marginTop: 1, opacity: 0.95 },
-  sheet: { maxHeight: "46%", backgroundColor: colors.canvas, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, marginTop: -radius.lg, ...shadow },
+  sheet: { maxHeight: "55%", backgroundColor: colors.canvas, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, marginTop: -radius.lg, ...shadow },
+  sheetScroll: { flexShrink: 1 },
   sheetContent: { padding: spacing.lg, gap: spacing.md },
+  toolbarWrap: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.canvas },
   help: { fontSize: 13, color: colors.muted, lineHeight: 19 },
 });
