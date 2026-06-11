@@ -1,6 +1,9 @@
 import React, { useEffect, useRef } from "react";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import MapView, { Circle, Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
+
+// Android -> Google Maps (needs a key); iOS -> native Apple Maps (no key/pods needed).
+const MAP_PROVIDER = Platform.OS === "android" ? PROVIDER_GOOGLE : undefined;
 import { DangerousGood, LatLng } from "../types";
 import { colors } from "../theme";
 
@@ -34,7 +37,7 @@ export function IsolationMap({ initialRegion, incident, selected, showCircle, on
     <MapView
       ref={mapRef}
       style={StyleSheet.absoluteFill}
-      provider={PROVIDER_GOOGLE}
+      provider={MAP_PROVIDER}
       initialRegion={initialRegion}
       showsUserLocation
       showsMyLocationButton={false}
