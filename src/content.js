@@ -171,6 +171,12 @@ export const DOCS = [
     ],
   },
   {
+    title: "HM Intel Android App — install on a device (APK)", type: "Android install file · .apk", status: ["Download", "p-ok"],
+    link: "/downloads/HM-Intel.apk", linkLabel: "Download APK ↓",
+    summary: "The Android build of the HM Intel app, packaged as an installable APK so it runs as a real app on an Android phone rather than in a browser. Download the file, open it on an Android device, and allow installation from your browser or Files app when prompted. (A real iOS install needs Apple TestFlight or a developer account; the live in-browser preview above covers iOS in the meantime.)",
+    meta: "Signed release APK · sideload install",
+  },
+  {
     title: "High-Fidelity Wireframes — Isolation Distance Tool", type: "Mobile app design · interactive walkthrough", status: ["New", "p-prog"],
     link: "/hifi.html",
     summary: "An interactive, guided walkthrough of the HM Intel mobile design in the full brand. Step through every screen — location permission, current location, product selection, the circular isolation zone, the information panel, set-incident, GPS-unavailable and reset, then the optional enhancements (move incident, metres/kilometres, multiple zones, wind placeholder, offline) — each with a short explanation of what it is, how it works, what it means to the responder, and what it solves. Opens as a separate full page; use Next / Back or the arrow keys.",

@@ -3,6 +3,9 @@
   "compatibility_date": "2025-01-01",
   "main": "worker.js",
   "vars": { "PORTAL_USER": "hmintel" },
+  "r2_buckets": [
+    { "binding": "DOWNLOADS", "bucket_name": "hmintel-downloads" }
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
