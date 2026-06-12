@@ -11,12 +11,12 @@ export const NAV = [
   ["about", "About Kalyan"],
 ];
 
-export const STATUS = "Discovery complete · scoping";
+export const STATUS = "Prototype built · iOS + Android · in review";
 
 export const META = [
   ["Client", "Commercial Transport Solutions"],
   ["Product", "HM Intel — companion to DG Vault"],
-  ["Stage", "Discovery complete → scoping"],
+  ["Stage", "Prototype built → review"],
   ["Engagement", "Freelance → technical leadership"],
   ["Introduced by", "Referral (Daryl → Chris)"],
 ];
@@ -59,39 +59,47 @@ export const PHASES = [
   { n: "✓", cls: "done", title: "Step 1 · Discovery", pill: ["Done", "p-ok"],
     body: "Intro call held June 1. Scope, product vision and success criteria confirmed with Chris and Ryan, and written up below.",
     who: ["all", "Kalyan · Chris · Ryan", "Jun 1 — done"] },
-  { n: "2", cls: "now", title: "Step 2 · A scoped plan you sign off", pill: ["In progress", "p-prog"],
-    body: "A one-page plan from the answers: exactly what the prototype covers (single circle, Google Maps, GPS, sample data), the mock-data shape, and the milestones. Sent for sign-off before build.",
-    who: ["k", "Kalyan drafts · Chris & Ryan approve", ""] },
-  { n: "3", cls: "", title: "Step 3 · Build the prototype, with a mid-point check-in", pill: null,
-    body: "Core flow first: location, product selection, isolation circle, info panel — in React. Progress shared at a milestone so direction is visible early.",
-    who: ["k", "Kalyan", "~1–2 weeks part-time"] },
-  { n: "4", cls: "", title: "Step 4 · Live demo, code review & technical summary", pill: null,
-    body: "The agreed deliverable: a live demonstration, a walkthrough of the source, and a brief technical summary of decisions and what production would need next.",
-    who: ["all", "Review together", ""] },
+  { n: "✓", cls: "done", title: "Step 2 · A scoped plan you sign off", pill: ["Done", "p-ok"],
+    body: "Scope confirmed from the discovery answers: a single circular isolation zone, Google Maps, GPS, and the five sample dangerous goods. The build proceeded against this slice.",
+    who: ["k", "Kalyan · Chris & Ryan", "done"] },
+  { n: "✓", cls: "done", title: "Step 3 · Build the prototype", pill: ["Done", "p-ok"],
+    body: "Built as a real native app for BOTH iOS and Android with React Native (Expo): GPS and permission handling, product selection, the isolation circle, and the full information panel — plus the optional enhancements (move the incident on the map, metres/kilometres, multiple distance zones) and a live in-zone safety alert. Verified on a real Android emulator and an iPhone simulator. A live in-browser preview and the Android APK are linked under Documents.",
+    who: ["k", "Kalyan", "built · iOS + Android"] },
+  { n: "4", cls: "now", title: "Step 4 · Live demo, code review & technical summary", pill: ["In progress", "p-prog"],
+    body: "The app is delivered and installable, and the live demo and source-code review are ready. The short technical summary of decisions and what production would need next is the remaining piece.",
+    who: ["all", "Review together", "ready"] },
 ];
 
 export const TASKS = {
   todo: [
-    { t: "Build the prototype: GPS → product select → isolation circle → info panel", who: "k", tag: "Core" },
-    { t: "Apply HM Intel brand to the prototype shell", who: "k", tag: "Design" },
     { t: "Write the brief technical summary for the demo", who: "k", tag: "Deliverable" },
+    { t: "Optional: Google Maps on iOS (currently native Apple Maps on iOS)", who: "k", tag: "Optional" },
+    { t: "Optional: wind-direction placeholder & offline messaging", who: "k", tag: "Optional" },
   ],
   prog: [
-    { t: "One-page scoped plan from Chris's answers", who: "k", tag: "For sign-off" },
-    { t: "Brand system, portal & React build", who: "k", tag: "v1" },
+    { t: "Live demo, code review & handoff to Chris and Ryan", who: "k", tag: "Deliverable" },
   ],
   done: [
+    { t: "Build the prototype: GPS → product select → isolation circle → info panel", tag: "Built" },
+    { t: "Ship as a real native app for iOS AND Android (React Native / Expo)", tag: "iOS + Android" },
+    { t: "Optional enhancements: move incident, metres/kilometres, multiple zones", tag: "Done" },
+    { t: "In-zone safety alert — warn when responder is inside a hazard zone", tag: "Bonus" },
+    { t: "On-device testing: Android emulator + iPhone simulator, all flows", tag: "Verified" },
+    { t: "Android APK built & provided for install", tag: "Delivered" },
+    { t: "Apply HM Intel brand to the prototype", tag: "Done" },
+    { t: "Confirm trial scope: single circle + Google Maps + GPS", tag: "Resolved" },
+    { t: "Brand system, portal & React build", tag: "v1" },
     { t: "Discovery call with Chris & Ryan", tag: "Jun 1" },
     { t: "Receive & read Chris's answer document", tag: "CW" },
-    { t: "Confirm trial scope: single circle + Google Maps + GPS", tag: "Resolved" },
     { t: "Send discovery agenda to Chris", tag: "KA" },
     { t: "Receive logo & branding materials", tag: "CW" },
   ],
 };
 
 export const OPEN_ITEMS = [
-  ["Confirm start and end milestones, mid-points, expectations, and prototype confirmations as next steps", "CW", "Chris · Kalyan", ["Next steps", "p-q"]],
-  ["Share the live demo link / handoff method for review", "KA", "Kalyan", ["After build", "p-wait"]],
+  ["Review the working prototype — live in-browser preview and the Android APK are linked under Documents", "KA", "Chris · Ryan", ["Ready to review", "p-ok"]],
+  ["Feedback on the wireframes and confirm next milestones (meeting to be scheduled)", "CW", "Chris · Kalyan", ["Next steps", "p-q"]],
+  ["Decide iOS map: native Apple Maps (current) vs Google Maps on iOS to match the brief literally", "CW", "Chris · Kalyan", ["Decision", "p-q"]],
 ];
 
 // Next steps & working agreement — a sub-checklist documenting how the engagement proceeds.
@@ -110,15 +118,15 @@ export const CHECKLIST = [
   },
   {
     label: "Build",
-    title: "Prototype scope & confirmation",
-    points: ["v1: single circular isolation zone, Google Maps, GPS, sample data", "Distances are placeholders; ERG / wind / day-night are future scope", "One-page scope signed off before any build begins"],
-    status: ["Direction confirmed", "p-ok"],
+    title: "Prototype — built & tested",
+    points: ["Built for iOS and Android (React Native / Expo): GPS, product select, isolation circle, info panel", "Optional enhancements done: move incident, metres/kilometres, multiple zones, in-zone safety alert", "Tested on-device; distances remain placeholders as agreed; ERG / wind / day-night still future scope"],
+    status: ["Built ✓", "p-ok"],
   },
   {
     label: "Process",
-    title: "Design → content → wireframe",
-    points: ["Wireframe the on-scene flow: map, product select, info panel", "Align UI copy and content with the confirmed scope", "Share an interactive prototype for review before any polish"],
-    status: ["Next step", "p-q"],
+    title: "Design → wireframe → working app",
+    points: ["Low- and high-fidelity wireframes delivered (in Documents)", "UI copy and content aligned with the confirmed scope", "The interactive prototype is now a real installable app, shared for review"],
+    status: ["Delivered", "p-ok"],
   },
   {
     label: "Milestones",
@@ -135,6 +143,33 @@ export const CHECKLIST = [
 ];
 
 export const DOCS = [
+  {
+    title: "HM Intel Mobile App — iOS & Android prototype", type: "Working app · live in-browser preview", status: ["Live", "p-prog"],
+    link: "https://hm-intel-app.pavanaravelli690.workers.dev", linkLabel: "Open live app ↗",
+    summary: "The working HM Intel Isolation Distance Tool, built as a real native app for both iOS and Android with React Native (Expo) and matched to the approved high-fidelity design. Every core requirement is implemented — GPS with permission handling, current location on a map, dangerous-goods selection, the circular isolation zone, and the full information panel — alongside the optional enhancements (move the incident on the map, metres/kilometres, multiple distance zones) and a bonus live safety alert that warns the responder when their own position falls inside the isolation or protective zone. This link opens a live, in-browser preview of the running app; for a real on-device install, use the Android APK below.",
+    meta: "React Native · Expo · iOS + Android · tested on-device",
+    body: [
+      ["h", "What is built"],
+      ["list", [
+        "Device GPS with clean permission handling and live location on the map (Google Maps on Android, native Apple Maps on iOS).",
+        "Dangerous-goods selection from the five sample products, with search.",
+        "Circular isolation zone around the incident, plus a concentric protective-action zone.",
+        "Full information panel: UN number, shipping name, hazard class, ERG guide, isolation and protective distances, and emergency contact (Call CANUTEC).",
+        "All four controls: Use Current Location, Set Incident (drag the map and confirm), Toggle Zone, and Reset.",
+      ]],
+      ["h", "Optional enhancements included"],
+      ["list", [
+        "Move the incident location on the map.",
+        "Toggle between metres and kilometres.",
+        "Multiple distance zones (isolation and protective).",
+        "Bonus: a real-time alert when the responder is inside a hazard zone, with leave-the-area guidance.",
+      ]],
+      ["h", "How it was verified"],
+      ["p", "Built and tested on a real Android emulator and an iPhone simulator, driving every flow end to end. Distances remain placeholders, as agreed for the trial."],
+      ["h", "Try it"],
+      ["p", "Open the live preview in this browser, or install the Android APK (next document) on a phone for the real on-device experience."],
+    ],
+  },
   {
     title: "High-Fidelity Wireframes — Isolation Distance Tool", type: "Mobile app design · interactive walkthrough", status: ["New", "p-prog"],
     link: "/hifi.html",

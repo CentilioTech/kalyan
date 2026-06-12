@@ -255,7 +255,7 @@ function Docs() {
               <div className="doc-head"><b>{d.title}</b><Pill kind={d.status[1]}>{d.status[0]}</Pill></div>
               <div className="doc-type">{d.type}</div>
               <p className="doc-summary">{d.summary}</p>
-              <span className="doc-open">{d.link ? "Open wireframes" : "Open document"} <span aria-hidden="true">{d.link ? "↗" : "→"}</span></span>
+              <span className="doc-open">{d.linkLabel ? d.linkLabel : (d.link ? "Open wireframes ↗" : "Open document →")}</span>
             </div>
           </motion.button>
         ))}

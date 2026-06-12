@@ -26,6 +26,21 @@ export default {
       );
     }
 
+    // Authenticated: serve the Android APK from R2 (too large for static assets).
+    const { pathname } = new URL(request.url);
+    if (pathname === "/downloads/HM-Intel.apk" && env.DOWNLOADS) {
+      const obj = await env.DOWNLOADS.get("HM-Intel.apk");
+      if (!obj) return new Response("APK not found", { status: 404 });
+      return new Response(obj.body, {
+        headers: {
+          "Content-Type": "application/vnd.android.package-archive",
+          "Content-Disposition": 'attachment; filename="HM-Intel.apk"',
+          "Content-Length": String(obj.size),
+          "Cache-Control": "no-store",
+        },
+      });
+    }
+
     // Authenticated: serve the static SPA from the assets binding.
     return env.ASSETS.fetch(request);
   },
