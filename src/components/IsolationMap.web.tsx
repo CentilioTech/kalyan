@@ -55,10 +55,15 @@ function MapEvents({ onMapPress, onCenterChange }: { onMapPress: (c: LatLng) => 
 
 function Controller({ focus }: { focus: IsolationMapProps["focus"] }) {
   const map = useMap();
-  // Leaflet needs a size recalc once the flex container has laid out.
+  // Leaflet caches its container size, so when the bottom sheet grows/shrinks the
+  // map's reported centre drifts from the visible centre (the crosshair). Keep the
+  // size current with a ResizeObserver so map.getCenter() always matches the crosshair.
   useEffect(() => {
-    const t = setTimeout(() => map.invalidateSize(), 0);
-    return () => clearTimeout(t);
+    const el = map.getContainer();
+    map.invalidateSize();
+    const ro = new ResizeObserver(() => map.invalidateSize());
+    ro.observe(el);
+    return () => ro.disconnect();
   }, [map]);
   useEffect(() => {
     if (!focus) return;
