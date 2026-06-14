@@ -16,12 +16,13 @@ export interface IsolationMapProps {
   userLocation: LatLng | null;
   selected: DangerousGood | null;
   showCircle: boolean;
+  settingIncident?: boolean;
   onMapPress: (c: LatLng) => void;
   onCenterChange?: (c: LatLng) => void;
   focus: { center: LatLng; radiusM: number; key: number } | null;
 }
 
-export function IsolationMap({ initialRegion, incident, selected, showCircle, onMapPress, onCenterChange, focus }: IsolationMapProps) {
+export function IsolationMap({ initialRegion, incident, selected, showCircle, settingIncident, onMapPress, onCenterChange, focus }: IsolationMapProps) {
   const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export function IsolationMap({ initialRegion, incident, selected, showCircle, on
       onPress={(e) => onMapPress(e.nativeEvent.coordinate)}
       onRegionChangeComplete={(r) => onCenterChange?.({ latitude: r.latitude, longitude: r.longitude })}
     >
-      {incident && (
+      {incident && !settingIncident && (
         <Marker
           coordinate={incident}
           title="Incident"

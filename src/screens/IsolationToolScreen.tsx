@@ -108,7 +108,10 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
     [incident, centerOn]
   );
 
-  const showCircle = useMemo(() => !!(incident && selected && zoneVisible), [incident, selected, zoneVisible]);
+  // While placing, preview the zone at the crosshair (map centre) so the circle shows
+  // exactly where the incident will be; otherwise draw it at the confirmed incident.
+  const circleCenter = settingIncident ? mapCenter : incident;
+  const showCircle = useMemo(() => !!(circleCenter && selected && zoneVisible), [circleCenter, selected, zoneVisible]);
   const zoneEnabled = !!(incident && selected);
 
   // Safety check: is the responder's own GPS position inside a hazard zone?
@@ -127,7 +130,8 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
       <View style={styles.mapWrap}>
         <IsolationMap
           initialRegion={DEFAULT_REGION}
-          incident={incident}
+          incident={circleCenter}
+          settingIncident={settingIncident}
           userLocation={location}
           selected={selected}
           showCircle={showCircle}

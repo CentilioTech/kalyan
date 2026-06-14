@@ -30,6 +30,7 @@ export interface IsolationMapProps {
   userLocation: LatLng | null;
   selected: DangerousGood | null;
   showCircle: boolean;
+  settingIncident?: boolean;
   onMapPress: (c: LatLng) => void;
   onCenterChange?: (c: LatLng) => void;
   focus: { center: LatLng; radiusM: number; key: number } | null;
@@ -67,7 +68,7 @@ function Controller({ focus }: { focus: IsolationMapProps["focus"] }) {
   return null;
 }
 
-export function IsolationMap({ initialRegion, incident, userLocation, selected, showCircle, onMapPress, onCenterChange, focus }: IsolationMapProps) {
+export function IsolationMap({ initialRegion, incident, userLocation, selected, showCircle, settingIncident, onMapPress, onCenterChange, focus }: IsolationMapProps) {
   return (
     <MapContainer
       center={[initialRegion.latitude, initialRegion.longitude]}
@@ -101,7 +102,7 @@ export function IsolationMap({ initialRegion, incident, userLocation, selected, 
           pathOptions={{ color: "#C01718", weight: 2, fillColor: "#C01718", fillOpacity: 0.16 }}
         />
       )}
-      {incident && <Marker position={[incident.latitude, incident.longitude]} icon={incidentIcon} />}
+      {incident && !settingIncident && <Marker position={[incident.latitude, incident.longitude]} icon={incidentIcon} />}
     </MapContainer>
   );
 }
