@@ -31,7 +31,7 @@ function distanceM(a: LatLng, b: LatLng): number {
 type ScreenProps = { locationApi: ReturnType<typeof useLocation> };
 
 export function IsolationToolScreen({ locationApi }: ScreenProps) {
-  const { location, error, requestLocation } = locationApi;
+  const { location, error, gpsStale, requestLocation } = locationApi;
 
   const [selected, setSelected] = useState<DangerousGood | null>(null);
   const [incident, setIncident] = useState<LatLng | null>(null);
@@ -147,9 +147,26 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
                 {zoneAlert === "isolation" ? "You are inside the isolation zone" : "You are inside the protective-action zone"}
               </Text>
               <Text style={styles.alertText}>
-                {zoneAlert === "isolation"
+                {gpsStale
+                  ? "GPS unavailable — based on your last known location. Step out of the area immediately."
+                  : zoneAlert === "isolation"
                   ? "Leave now — move away from the incident, upwind, to safe distance."
                   : "Move away from the area and follow responder direction."}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* GPS lost while not (currently) inside a zone — disclaimer based on the last known fix. */}
+        {gpsStale && !zoneAlert && !settingIncident && location && (
+          <View style={[styles.alert, styles.alertInfo]}>
+            <TriangleAlert size={18} color={colors.paper} />
+            <View style={styles.alertBody}>
+              <Text style={styles.alertTitle}>GPS unavailable — using last known location</Text>
+              <Text style={styles.alertText}>
+                {incident && selected
+                  ? "Showing information from your last GPS fix. You appear to be clear of the zones; this updates when GPS returns."
+                  : "Showing information from your last GPS fix; this updates when GPS returns."}
               </Text>
             </View>
           </View>
@@ -235,6 +252,7 @@ const styles = StyleSheet.create({
   alert: { position: "absolute", top: spacing.md, left: spacing.md, right: spacing.md, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 13, paddingVertical: 11, borderRadius: radius.md, zIndex: 1002, ...shadow },
   alertCritical: { backgroundColor: colors.hmRed },
   alertWarn: { backgroundColor: colors.warn },
+  alertInfo: { backgroundColor: colors.steel },
   alertBody: { flex: 1 },
   alertTitle: { color: colors.paper, fontSize: 13.5, fontWeight: "800" },
   alertText: { color: colors.paper, fontSize: 11.5, fontWeight: "500", marginTop: 1, opacity: 0.95 },
