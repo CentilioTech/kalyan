@@ -58,12 +58,20 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
 
   const handleUseCurrent = useCallback(async () => {
     const loc = location ?? (await requestLocation());
-    if (loc) {
+    if (!loc) return;
+    setSettingIncident(false);
+    if (incident) {
+      // An incident is already placed — never move it. Just recenter the map to
+      // show the responder relative to the incident (fit both points in view).
+      const d = distanceM(loc, incident);
+      const mid = { latitude: (loc.latitude + incident.latitude) / 2, longitude: (loc.longitude + incident.longitude) / 2 };
+      centerOn(mid, Math.max(d / 2 + 100, selected?.protectiveM ?? selected?.isolationM ?? 250));
+    } else {
+      // No incident yet — "Use current location" sets the incident here.
       setIncident(loc);
-      setSettingIncident(false);
       centerOn(loc, selected?.protectiveM ?? selected?.isolationM ?? 250);
     }
-  }, [location, requestLocation, centerOn, selected]);
+  }, [location, requestLocation, centerOn, selected, incident]);
 
   // Tapping the map while placing also drops the incident there.
   const handleMapPress = useCallback(
