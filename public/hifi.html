@@ -176,6 +176,26 @@
   .dots b.on{background:var(--hm-red);transform:scale(1.25)}
   @media(max-width:780px){.coach:before{display:none}}
   footer{margin-top:42px;border-top:1px solid #D8DBE0;padding-top:16px;color:var(--muted);font-size:12px;line-height:1.6}
+
+  /* ---- wind & downwind hazard ---- */
+  .banner.danger{background:var(--hm-red)}
+  .banner.protect{background:#E8730C}
+  .banner.risk{background:#B8860B}
+  .banner.clear{background:#1F9D55}
+  .banner.calm{background:var(--steel)}
+  .cone{position:absolute;width:142px;height:112px;transform:translateY(-50%);transform-origin:0 50%;
+    background:linear-gradient(90deg,rgba(184,134,11,.55),rgba(184,134,11,.06));
+    clip-path:polygon(0 50%,100% 9%,100% 91%);z-index:3;pointer-events:none}
+  .windbadge{position:absolute;right:11px;bottom:11px;width:52px;border-radius:12px;background:rgba(255,255,255,.92);
+    border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:6px 0 5px;z-index:6;box-shadow:0 3px 8px rgba(0,0,0,.12)}
+  .windbadge .nv{display:grid;place-items:center;color:var(--hm-red)}
+  .windbadge .nv svg.lucide{width:20px;height:20px}
+  .windbadge b{font-size:9px;color:var(--ink);font-weight:800;margin-top:1px}
+  .windbadge small{font-size:7px;color:var(--muted);letter-spacing:.03em}
+  .windline{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--slate);font-weight:600}
+  .windline svg.lucide{width:15px;height:15px;color:var(--steel)}
+  .windline .v{margin-left:auto;font-weight:800;color:var(--ink)}
+  .dlabel{position:absolute;font-size:9px;font-weight:700;color:#7a5b00;font-family:"Sora";z-index:4;transform:translate(-50%,-50%);letter-spacing:.02em}
 </style>
 </head>
 <body>
@@ -189,18 +209,20 @@
     <span class="tag">Hi-Fi · Interactive</span>
   </header>
 
-  <p class="lede">A guided walkthrough of the HM Intel mobile design. Press <b>Next</b> and the blue card steps you through every screen — what it is, how it works, what it means to the responder, and what it solves — one at a time. Use <b>All screens</b> to see the full grid, or the arrow keys to move. Built in the full HM Intel brand; distances are placeholders from the trial brief.</p>
+  <p class="lede">A guided walkthrough of the HM Intel mobile design. Press <b>Next</b> and the blue card steps you through every screen — what it is, how it works, what it means to the responder, and what it solves — one at a time. Use <b>All screens</b> to see the full grid, or the arrow keys to move. Built in the full HM Intel brand; distances are placeholders from the trial brief. The new <b>Wind &amp; downwind hazard</b> screens (section C) add a live downwind cone over the isolation and protective zones, with a clear status for every position.</p>
 
   <div class="legend">
     <span><i class="sw" style="background:var(--hm-red)"></i> HM Red — isolation / hazard / primary</span>
     <span><i class="sw" style="background:var(--blue)"></i> Blue — your live location</span>
     <span><i class="sw" style="background:var(--ink)"></i> Ink — text & emergency actions</span>
+    <span><i class="sw" style="background:#5B6B7B"></i> Steel — protective zone</span>
+    <span><i class="sw" style="background:#B8860B"></i> Amber — downwind plume</span>
     <span><i class="sw" style="background:#E5EFD8"></i> Map surface</span>
   </div>
 
   <div class="tourui">
     <div class="tbar">
-      <span class="count" id="count">Step 1 / 13</span>
+      <span class="count" id="count">Step 1 / 17</span>
       <span class="modes"><button id="mTour" class="on">Guided tour</button><button id="mGrid">All screens</button></span>
     </div>
     <div id="tourstage">
@@ -441,27 +463,9 @@
       <div class="frame-c">Concentric circles: solid red isolation, dashed steel protective. Flagged as future preview.</div>
     </div>
 
-    <!-- 12 wind -->
+    <!-- 12 offline -->
     <div class="card">
-      <div class="frame-h"><span class="idx">12</span><span class="t">Wind direction placeholder</span></div>
-      <div class="phone"><div class="scr"><div class="island"></div>
-        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
-        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
-        <div class="map">
-          <div class="diag"></div>
-          <div class="windrose"><b>N</b><i data-lucide="navigation"></i></div>
-          <div class="zone" style="left:48%;top:53%;width:116px;height:116px"></div>
-          <svg class="pin" style="left:48%;top:53%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/></svg>
-          <div class="banner off"><i data-lucide="wind"></i> Wind shown as a placeholder — not wired to live data yet</div>
-        </div>
-        <div class="cta"><div class="btn ghost"><i data-lucide="eye-off"></i> Hide wind</div></div>
-      </div></div>
-      <div class="frame-c">A compass placeholder reserving the spot for the future downwind model. Clearly labelled.</div>
-    </div>
-
-    <!-- 13 offline -->
-    <div class="card">
-      <div class="frame-h"><span class="idx">13</span><span class="t">Offline fallback</span></div>
+      <div class="frame-h"><span class="idx">12</span><span class="t">Offline fallback</span></div>
       <div class="phone"><div class="scr"><div class="island"></div>
         <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="airplay"></i><i data-lucide="wifi-off"></i><i data-lucide="battery-medium"></i></span></div>
         <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
@@ -483,9 +487,139 @@
 
   </div>
 
+  <!-- ===================== WIND & DOWNWIND ===================== -->
+  <div class="sec-h"><span class="n">C</span><h2>Wind &amp; downwind hazard</h2><span class="c">isolation + protective + a live downwind cone, with a status for every position</span></div>
+  <div class="grid">
+
+    <!-- 13 -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">13</span><span class="t">Wind &middot; danger (in isolation)</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map">
+          <div class="diag"></div><div class="park"></div>
+          <div class="banner danger"><i data-lucide="alert-triangle"></i> DANGER &mdash; inside isolation. Leave now, move upwind.</div>
+          <div class="zone proto" style="left:50%;top:48%;width:168px;height:168px"></div>
+          <div class="cone" style="left:50%;top:48%"></div>
+          <div class="dlabel" style="left:63%;top:40%">downwind</div>
+          <div class="zone" style="left:50%;top:48%;width:80px;height:80px"></div>
+          <svg class="pin" style="left:50%;top:48%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/><path d="M14 9.4l2.4 4.2h-4.8z" fill="#C01718"/></svg>
+          <div class="user" style="left:44%;top:55%"></div>
+          <div class="windbadge"><span class="nv"><i data-lucide="arrow-right"></i></span><b>W&rarr;</b><small>18 km/h</small></div>
+        </div>
+        <div class="sheet"><div class="grab"></div>
+          <div class="windline"><i data-lucide="wind"></i> Wind at incident <span class="v">From W &middot; 18 km/h</span></div>
+          <div class="legendrow" style="margin-top:9px"><span><i class="sw" style="background:var(--hm-red)"></i> Isolation</span><span><i class="sw" style="background:var(--steel)"></i> Protective</span><span><i class="sw" style="background:#B8860B"></i> Downwind</span></div>
+        </div>
+      </div></div>
+      <div class="frame-c">Inside the isolation circle the status is red regardless of wind &mdash; all three zones stay drawn, and the cone shows which way is upwind to escape.</div>
+    </div>
+
+    <!-- 14 -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">14</span><span class="t">Wind &middot; protective zone</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map">
+          <div class="diag"></div><div class="park"></div>
+          <div class="banner protect"><i data-lucide="alert-triangle"></i> PROTECTIVE ZONE &mdash; move out and upwind.</div>
+          <div class="zone proto" style="left:50%;top:48%;width:168px;height:168px"></div>
+          <div class="cone" style="left:50%;top:48%"></div>
+          <div class="dlabel" style="left:63%;top:40%">downwind</div>
+          <div class="zone" style="left:50%;top:48%;width:80px;height:80px"></div>
+          <svg class="pin" style="left:50%;top:48%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/><path d="M14 9.4l2.4 4.2h-4.8z" fill="#C01718"/></svg>
+          <div class="user" style="left:48%;top:66%"></div>
+          <div class="windbadge"><span class="nv"><i data-lucide="arrow-right"></i></span><b>W&rarr;</b><small>18 km/h</small></div>
+        </div>
+        <div class="sheet"><div class="grab"></div>
+          <div class="windline"><i data-lucide="wind"></i> Wind at incident <span class="v">From W &middot; 18 km/h</span></div>
+          <div class="legendrow" style="margin-top:9px"><span><i class="sw" style="background:var(--hm-red)"></i> Isolation</span><span><i class="sw" style="background:var(--steel)"></i> Protective</span><span><i class="sw" style="background:#B8860B"></i> Downwind</span></div>
+        </div>
+      </div></div>
+      <div class="frame-c">Outside isolation but inside the steel protective circle &rarr; orange. The protective zone stays drawn in every direction; move out of the ring and upwind.</div>
+    </div>
+
+    <!-- 15 -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">15</span><span class="t">Wind &middot; downwind (at risk)</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map">
+          <div class="diag"></div><div class="park"></div>
+          <div class="banner risk"><i data-lucide="wind"></i> DOWNWIND &mdash; in the plume path. Move crosswind.</div>
+          <div class="zone proto" style="left:50%;top:48%;width:168px;height:168px"></div>
+          <div class="cone" style="left:50%;top:48%"></div>
+          <div class="dlabel" style="left:63%;top:40%">downwind</div>
+          <div class="zone" style="left:50%;top:48%;width:80px;height:80px"></div>
+          <svg class="pin" style="left:50%;top:48%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/><path d="M14 9.4l2.4 4.2h-4.8z" fill="#C01718"/></svg>
+          <div class="user" style="left:88%;top:48%"></div>
+          <div class="windbadge"><span class="nv"><i data-lucide="arrow-right"></i></span><b>W&rarr;</b><small>18 km/h</small></div>
+        </div>
+        <div class="sheet"><div class="grab"></div>
+          <div class="windline"><i data-lucide="wind"></i> Wind at incident <span class="v">From W &middot; 18 km/h</span></div>
+          <div class="legendrow" style="margin-top:9px"><span><i class="sw" style="background:var(--hm-red)"></i> Isolation</span><span><i class="sw" style="background:var(--steel)"></i> Protective</span><span><i class="sw" style="background:#B8860B"></i> Downwind</span></div>
+        </div>
+      </div></div>
+      <div class="frame-c">Outside both circles, but the wind carries the plume here &rarr; amber. Move crosswind, out of the wind line &mdash; the case the circles alone can&rsquo;t flag.</div>
+    </div>
+
+    <!-- 16 -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">16</span><span class="t">Wind &middot; clear (upwind)</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map">
+          <div class="diag"></div><div class="park"></div>
+          <div class="banner clear"><i data-lucide="circle-check"></i> CLEAR &mdash; outside the zones, upwind.</div>
+          <div class="zone proto" style="left:50%;top:48%;width:168px;height:168px"></div>
+          <div class="cone" style="left:50%;top:48%"></div>
+          <div class="dlabel" style="left:63%;top:40%">downwind</div>
+          <div class="zone" style="left:50%;top:48%;width:80px;height:80px"></div>
+          <div class="dlabel" style="left:18%;top:30%;color:var(--steel)">upwind</div>
+          <svg class="pin" style="left:50%;top:48%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/><path d="M14 9.4l2.4 4.2h-4.8z" fill="#C01718"/></svg>
+          <div class="user" style="left:12%;top:36%"></div>
+          <div class="windbadge"><span class="nv"><i data-lucide="arrow-right"></i></span><b>W&rarr;</b><small>18 km/h</small></div>
+        </div>
+        <div class="sheet"><div class="grab"></div>
+          <div class="windline"><i data-lucide="wind"></i> Wind at incident <span class="v">From W &middot; 18 km/h</span></div>
+          <div class="legendrow" style="margin-top:9px"><span><i class="sw" style="background:var(--hm-red)"></i> Isolation</span><span><i class="sw" style="background:var(--steel)"></i> Protective</span><span><i class="sw" style="background:#B8860B"></i> Downwind</span></div>
+        </div>
+      </div></div>
+      <div class="frame-c">Same distance from the incident as an at-risk responder, but upwind and outside both circles &rarr; green. The cone shows the safe side at a glance.</div>
+    </div>
+
+    <!-- 17 -->
+    <div class="card">
+      <div class="frame-h"><span class="idx">17</span><span class="t">Wind &middot; calm / variable</span></div>
+      <div class="phone"><div class="scr"><div class="island"></div>
+        <div class="statusbar"><span>14:32</span><span class="r"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+        <div class="appbar"><span class="applogo">i</span><span class="apptt"><b>HM Intel</b><small>Isolation Distance Tool</small></span><span class="info"><i data-lucide="info"></i></span></div>
+        <div class="map">
+          <div class="diag"></div><div class="park"></div>
+          <div class="banner calm"><i data-lucide="wind"></i> CALM &mdash; no plume direction. Protective zone applies all-round.</div>
+          <div class="zone proto" style="left:50%;top:48%;width:168px;height:168px"></div>
+          <div class="zone" style="left:50%;top:48%;width:80px;height:80px"></div>
+          <svg class="pin" style="left:50%;top:48%" viewBox="0 0 28 36"><path d="M14 0C6.8 0 1 5.6 1 12.7 1 22 14 36 14 36s13-14 13-23.3C27 5.6 21.2 0 14 0z" fill="#C01718"/><circle cx="14" cy="12.6" r="5.4" fill="#fff"/><path d="M14 9.4l2.4 4.2h-4.8z" fill="#C01718"/></svg>
+          <div class="user" style="left:64%;top:34%"></div>
+          <div class="windbadge"><span class="nv" style="color:var(--steel)"><i data-lucide="minus"></i></span><b>CALM</b><small>&lt;3 km/h</small></div>
+        </div>
+        <div class="sheet"><div class="grab"></div>
+          <div class="windline"><i data-lucide="wind"></i> Wind at incident <span class="v">Calm &middot; &lt;3 km/h</span></div>
+          <div class="legendrow" style="margin-top:9px"><span><i class="sw" style="background:var(--hm-red)"></i> Isolation</span><span><i class="sw" style="background:var(--steel)"></i> Protective</span></div>
+        </div>
+      </div></div>
+      <div class="frame-c">Near-zero or unstable wind has no reliable direction, so the cone drops out &mdash; but the protective circle stays as the conservative, all-direction default.</div>
+    </div>
+
+  </div>
+
   </div>
   <footer>
-    High-fidelity screens · HM Intel Isolation Distance Tool · core (01–08) then optional (09–13). Built from the approved low-fidelity wireframes, in the full HM Intel brand, icons by Lucide. Hazard placards and distances are placeholders from the trial brief — verify against the current ERG.
+    High-fidelity screens · HM Intel Isolation Distance Tool · core (01–08), optional (09–12), then the new wind &amp; downwind states (13–17). Built from the approved low-fidelity wireframes, in the full HM Intel brand, icons by Lucide. Hazard placards and distances are placeholders from the trial brief — verify against the current ERG.
   </footer>
 </div>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -547,16 +681,36 @@ var COACH=[
 ["mouse-pointer-click","How it works","Solid red isolation inside, dashed steel protective outside, clearly flagged as a future preview."],
 ["hard-hat","For the responder","Shows the difference between responder-only isolation and the public protective-action area."],
 ["circle-check","What it solves","Signals where the product is heading — full ERG semantics — without overbuilding the trial."]]},
-{t:"Wind direction placeholder",sub:"Reserved space for the downwind model.",pts:[
-["eye","What it is","A compass / wind marker that reserves the spot for wind-aware protective zones (future)."],
-["mouse-pointer-click","How it works","A non-functional rose, clearly labelled as a placeholder and not wired to live data."],
-["hard-hat","For the responder","A visible promise that downwind, wind-aware guidance is on the roadmap."],
-["circle-check","What it solves","Communicates intent for the directional protective distance the trial deliberately leaves out."]]},
 {t:"Offline fallback",sub:"The core answer survives dead zones.",pts:[
 ["eye","What it is","How the tool behaves with no connection."],
 ["mouse-pointer-click","How it works","A persistent offline banner; sample data and the isolation maths keep working; the map degrades to last tiles."],
 ["hard-hat","For the responder","Incidents happen in dead zones — the isolation answer still appears without signal."],
-["circle-check","What it solves","Connectivity gaps at real sites; a safety-critical function can't depend on a network."]]}
+["circle-check","What it solves","Connectivity gaps at real sites; a safety-critical function can't depend on a network."]]},
+{t:"Wind \u00b7 danger (in isolation)",sub:"Inside the red circle \u2014 wind doesn't change that.",pts:[
+["eye","What it is","The wind-aware view when you are inside the isolation circle: all three zones drawn, status red."],
+["mouse-pointer-click","How it works","Isolation always wins. The red banner says leave now; the downwind cone points out which way is upwind to escape."],
+["hard-hat","For the responder","No ambiguity at the most dangerous position \u2014 get out, and the cone shows the safest direction to move."],
+["circle-check","What it solves","A wind reading must never soften the core isolation warning; red stays red, with an escape bearing added."]]},
+{t:"Wind \u00b7 protective zone",sub:"Within protective-action distance.",pts:[
+["eye","What it is","You are outside isolation but inside the steel protective circle, with the downwind cone overlaid on top."],
+["mouse-pointer-click","How it works","The orange banner flags the protective zone; the protective circle stays drawn in every direction, cone on top."],
+["hard-hat","For the responder","Even crosswind of the source, being inside the protective distance means move out and upwind."],
+["circle-check","What it solves","Keeps the all-direction protective zone visible so it is never dropped in favour of the cone alone."]]},
+{t:"Wind \u00b7 downwind (at risk)",sub:"Outside the circles, but in the plume.",pts:[
+["eye","What it is","The case the circles alone miss \u2014 you are beyond both rings, yet inside the wind-carried downwind cone."],
+["mouse-pointer-click","How it works","Live wind at the incident builds a downwind cone (bearing = wind-from + 180\u00b0); standing in it raises an amber alert."],
+["hard-hat","For the responder","A warning you would never get from distance alone \u2014 move crosswind, out of the wind line, to clear the plume."],
+["circle-check","What it solves","Wind can push vapour past the static zones; this catches exposure the isolation and protective circles can't show."]]},
+{t:"Wind \u00b7 clear (upwind)",sub:"Outside the zones and out of the wind.",pts:[
+["eye","What it is","The safe state: outside both circles and upwind of the incident, with every zone still drawn for context."],
+["mouse-pointer-click","How it works","Same distance as an at-risk responder, but on the upwind side \u2014 outside the cone \u2014 so the status reads green."],
+["hard-hat","For the responder","Confidence that your position is clear, plus a visible read on which side stays safe if the wind holds."],
+["circle-check","What it solves","Distance alone can't tell safe from exposed; the cone makes the upwind safe side obvious at a glance."]]},
+{t:"Wind \u00b7 calm / variable",sub:"No steady wind \u2014 no cone.",pts:[
+["eye","What it is","The fallback when wind is near-zero or its direction is unstable."],
+["mouse-pointer-click","How it works","Below a calm threshold the cone is hidden, but the isolation and protective circles stay \u2014 protective applies all-round."],
+["hard-hat","For the responder","No misleading plume direction when there isn't one; treat the whole protective circle as hazardous."],
+["circle-check","What it solves","Avoids drawing a false-confidence cone in calm air, defaulting to the conservative all-direction zone."]]},
 ];
 (function(){
   var cards=[].slice.call(document.querySelectorAll('#gridmode .card'));
