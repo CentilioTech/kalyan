@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Platform, StyleSheet } from "react-native";
-import MapView, { Circle, Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
+import MapView, { Circle, Marker, Polygon, PROVIDER_GOOGLE, Region } from "react-native-maps";
 
 // Android -> Google Maps (needs a key); iOS -> native Apple Maps (no key/pods needed).
 const MAP_PROVIDER = Platform.OS === "android" ? PROVIDER_GOOGLE : undefined;
@@ -17,12 +17,14 @@ export interface IsolationMapProps {
   selected: DangerousGood | null;
   showCircle: boolean;
   settingIncident?: boolean;
+  /** Downwind hazard cone (apex at incident); null when calm or no wind. */
+  conePoints?: LatLng[] | null;
   onMapPress: (c: LatLng) => void;
   onCenterChange?: (c: LatLng) => void;
   focus: { center: LatLng; radiusM: number; key: number } | null;
 }
 
-export function IsolationMap({ initialRegion, incident, selected, showCircle, settingIncident, onMapPress, onCenterChange, focus }: IsolationMapProps) {
+export function IsolationMap({ initialRegion, incident, selected, showCircle, settingIncident, conePoints, onMapPress, onCenterChange, focus }: IsolationMapProps) {
   const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
@@ -61,6 +63,16 @@ export function IsolationMap({ initialRegion, incident, selected, showCircle, se
           strokeWidth={2}
           lineDashPattern={[6, 6]}
           fillColor="rgba(91,107,123,0.07)"
+        />
+      )}
+      {/* Downwind hazard cone (amber) — over the protective fill, under the isolation circle. */}
+      {showCircle && incident && selected && conePoints && conePoints.length > 2 && (
+        <Polygon
+          coordinates={conePoints}
+          strokeColor={colors.warn}
+          strokeWidth={1.5}
+          lineDashPattern={[6, 6]}
+          fillColor="rgba(184,134,11,0.18)"
         />
       )}
       {showCircle && incident && selected && (

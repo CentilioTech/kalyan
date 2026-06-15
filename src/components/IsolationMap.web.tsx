@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { MapContainer, TileLayer, Circle, CircleMarker, Marker, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Circle, CircleMarker, Marker, Polygon, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { DangerousGood, LatLng } from "../types";
 
@@ -31,6 +31,8 @@ export interface IsolationMapProps {
   selected: DangerousGood | null;
   showCircle: boolean;
   settingIncident?: boolean;
+  /** Downwind hazard cone (apex at incident); null when calm or no wind. */
+  conePoints?: LatLng[] | null;
   onMapPress: (c: LatLng) => void;
   onCenterChange?: (c: LatLng) => void;
   focus: { center: LatLng; radiusM: number; key: number } | null;
@@ -73,7 +75,7 @@ function Controller({ focus }: { focus: IsolationMapProps["focus"] }) {
   return null;
 }
 
-export function IsolationMap({ initialRegion, incident, userLocation, selected, showCircle, settingIncident, onMapPress, onCenterChange, focus }: IsolationMapProps) {
+export function IsolationMap({ initialRegion, incident, userLocation, selected, showCircle, settingIncident, conePoints, onMapPress, onCenterChange, focus }: IsolationMapProps) {
   return (
     <MapContainer
       center={[initialRegion.latitude, initialRegion.longitude]}
@@ -98,6 +100,13 @@ export function IsolationMap({ initialRegion, incident, userLocation, selected, 
           center={[incident.latitude, incident.longitude]}
           radius={selected.protectiveM}
           pathOptions={{ color: "#5B6B7B", weight: 2, dashArray: "6 6", fillColor: "#5B6B7B", fillOpacity: 0.07 }}
+        />
+      )}
+      {/* Downwind hazard cone (amber) — on top of the protective fill, under the isolation circle. */}
+      {showCircle && incident && selected && conePoints && conePoints.length > 2 && (
+        <Polygon
+          positions={conePoints.map((p) => [p.latitude, p.longitude]) as [number, number][]}
+          pathOptions={{ color: "#B8860B", weight: 1.5, dashArray: "6 6", fillColor: "#B8860B", fillOpacity: 0.16 }}
         />
       )}
       {showCircle && incident && selected && (

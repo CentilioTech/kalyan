@@ -20,3 +20,17 @@ export interface DangerousGood {
 }
 
 export type Units = "m" | "km";
+
+export interface Wind {
+  /** Direction the wind is blowing FROM, in degrees (meteorological convention). */
+  fromDeg: number;
+  /** Wind speed in km/h. */
+  speedKmh: number;
+  /** True when the wind is too weak/variable to model a reliable downwind direction. */
+  calm: boolean;
+  /** Timestamp (ms) of the reading. */
+  fetchedAt: number;
+}
+
+/** Responder status relative to the incident, factoring in wind. */
+export type WindStatus = "danger" | "protective" | "downwind" | "clear";

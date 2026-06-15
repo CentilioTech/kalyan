@@ -1,11 +1,12 @@
 import React from "react";
 import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
-import { Shield, Phone, TriangleAlert, ChevronDown } from "lucide-react-native";
-import { DangerousGood, Units } from "../types";
+import { Shield, Phone, TriangleAlert, ChevronDown, Wind as WindIcon } from "lucide-react-native";
+import { DangerousGood, Units, Wind } from "../types";
 import { colors, radius, spacing } from "../theme";
+import { compass8 } from "../utils/wind";
 import { HazardPlacard } from "./HazardPlacard";
 
-type Props = { good: DangerousGood; units: Units; onChangeProduct?: () => void };
+type Props = { good: DangerousGood; units: Units; wind?: Wind | null; onChangeProduct?: () => void };
 
 const fmt = (m: number, units: Units) => (units === "km" ? `${(m / 1000).toFixed(m % 1000 === 0 ? 0 : 2)} km` : `${m} m`);
 
@@ -19,7 +20,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 /** Dangerous-goods information panel shown once a product is selected. */
-export function InfoPanel({ good, units, onChangeProduct }: Props) {
+export function InfoPanel({ good, units, wind, onChangeProduct }: Props) {
   return (
     <View style={styles.card}>
       <Pressable style={styles.header} onPress={onChangeProduct}>
@@ -49,7 +50,7 @@ export function InfoPanel({ good, units, onChangeProduct }: Props) {
             <Text style={styles.distLblProt}>PROTECTIVE</Text>
           </View>
           <Text style={styles.distNumProt}>{fmt(good.protectiveM, units)}</Text>
-          <Text style={styles.distFt}>future preview</Text>
+          <Text style={styles.distFt}>all directions</Text>
         </View>
       </View>
 
@@ -63,6 +64,19 @@ export function InfoPanel({ good, units, onChangeProduct }: Props) {
           <Text style={styles.legendText}>Protective {fmt(good.protectiveM, units)}</Text>
         </View>
       </View>
+
+      {wind && (
+        <>
+          <View style={styles.windRow}>
+            <WindIcon size={14} color={colors.steel} />
+            <Text style={styles.windLabel}>Wind (at incident)</Text>
+            <Text style={styles.windVal}>
+              {wind.calm ? "Calm · <3 km/h" : `From ${compass8(wind.fromDeg)} · ${Math.round(wind.speedKmh)} km/h`}
+            </Text>
+          </View>
+          <Text style={styles.windCaption}>Modeled (Open-Meteo) · confirm on scene</Text>
+        </>
+      )}
 
       <Row label="Hazard class" value={good.hazardClass} />
       <Row label="Shipping name" value={good.name} />
@@ -105,6 +119,10 @@ const styles = StyleSheet.create({
   sw: { width: 12, height: 12, borderRadius: 3 },
   swProt: { backgroundColor: "transparent", borderWidth: 1.5, borderColor: colors.steel, borderStyle: "dashed" },
   legendText: { fontSize: 11, color: colors.slate, fontWeight: "600" },
+  windRow: { flexDirection: "row", alignItems: "center", gap: 7, backgroundColor: colors.canvas, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 10, paddingVertical: 9, marginTop: spacing.sm },
+  windLabel: { fontSize: 11.5, color: colors.slate, fontWeight: "600" },
+  windVal: { marginLeft: "auto", fontSize: 12, fontWeight: "800", color: colors.ink },
+  windCaption: { fontSize: 9, color: colors.muted, textAlign: "right", marginTop: 4 },
   kv: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.canvas },
   k: { fontSize: 12, color: colors.muted },
   v: { fontSize: 12.5, fontWeight: "700", color: colors.ink },

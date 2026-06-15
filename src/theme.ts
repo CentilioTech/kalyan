@@ -12,7 +12,9 @@ export const colors = {
   canvas: "#F6F7F9",
   line: "#E7E9EE",
   ok: "#1F9D55",
+  okWash: "#E4F4EA",
   warn: "#B8860B",
+  orange: "#E8730C",
 };
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24 };

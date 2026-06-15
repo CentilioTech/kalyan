@@ -1,13 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Move, Crosshair, Check, Search, ChevronRight, TriangleAlert } from "lucide-react-native";
+import { Move, Crosshair, Check, Search, ChevronRight, TriangleAlert, Wind as WindIcon } from "lucide-react-native";
 import { AppHeader } from "../components/AppHeader";
 import { ProductSelector } from "../components/ProductSelector";
 import { InfoPanel } from "../components/InfoPanel";
 import { MapControls } from "../components/MapControls";
 import { IsolationMap } from "../components/IsolationMap";
+import { WindBadge } from "../components/WindBadge";
 import { useLocation } from "../hooks/useLocation";
-import { DangerousGood, LatLng, Units } from "../types";
+import { useWind } from "../hooks/useWind";
+import { DangerousGood, LatLng, Units, WindStatus } from "../types";
+import { conePolygon, coneLengthFor, windStatus } from "../utils/wind";
 import { colors, radius, shadow, spacing } from "../theme";
 
 // Platform-neutral region type (the native map maps it onto react-native-maps' Region).
@@ -113,14 +116,23 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
   const showCircle = useMemo(() => !!(incident && selected && zoneVisible && !settingIncident), [incident, selected, zoneVisible, settingIncident]);
   const zoneEnabled = !!(incident && selected);
 
-  // Safety check: is the responder's own GPS position inside a hazard zone?
-  const zoneAlert = useMemo<null | "isolation" | "protective">(() => {
-    if (!location || !incident || !selected) return null;
-    const d = distanceM(location, incident);
-    if (d <= selected.isolationM) return "isolation";
-    if (d <= selected.protectiveM) return "protective";
-    return null;
-  }, [location, incident, selected]);
+  // Live wind read at the INCIDENT (Open-Meteo); drives the downwind cone + status.
+  const { wind } = useWind(incident);
+  const coneLengthM = useMemo(() => (selected ? coneLengthFor(selected) : 0), [selected]);
+
+  // Downwind hazard cone — only when the zone is shown, wind is present, and not calm.
+  const conePoints = useMemo(() => {
+    if (!showCircle || !incident || !selected || !wind || wind.calm) return null;
+    return conePolygon(incident, wind, coneLengthM);
+  }, [showCircle, incident, selected, wind, coneLengthM]);
+
+  // Responder status by priority: danger › protective › downwind › clear.
+  const status = useMemo<WindStatus | null>(
+    () => windStatus({ user: location, incident, selected, wind, coneLengthM }),
+    [location, incident, selected, wind, coneLengthM]
+  );
+  // Banners are only shown for actionable states (not "clear").
+  const alertStatus = status === "clear" ? null : status;
 
   return (
     <View style={styles.root}>
@@ -134,31 +146,43 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
           userLocation={location}
           selected={selected}
           showCircle={showCircle}
+          conePoints={conePoints}
           onMapPress={handleMapPress}
           onCenterChange={setMapCenter}
           focus={focus}
         />
 
-        {zoneAlert && !settingIncident && (
-          <View style={[styles.alert, zoneAlert === "isolation" ? styles.alertCritical : styles.alertWarn]}>
-            <TriangleAlert size={20} color={colors.paper} />
+        {alertStatus && !settingIncident && (
+          <View
+            style={[
+              styles.alert,
+              alertStatus === "danger" ? styles.alertCritical : alertStatus === "protective" ? styles.alertProtective : styles.alertDownwind,
+            ]}
+          >
+            {alertStatus === "downwind" ? <WindIcon size={20} color={colors.paper} /> : <TriangleAlert size={20} color={colors.paper} />}
             <View style={styles.alertBody}>
               <Text style={styles.alertTitle}>
-                {zoneAlert === "isolation" ? "You are inside the isolation zone" : "You are inside the protective-action zone"}
+                {alertStatus === "danger"
+                  ? "DANGER — inside the isolation zone"
+                  : alertStatus === "protective"
+                  ? "Inside the protective-action zone"
+                  : "Downwind — in the wind path"}
               </Text>
               <Text style={styles.alertText}>
                 {gpsStale
-                  ? "GPS unavailable — based on your last known location. Step out of the area immediately."
-                  : zoneAlert === "isolation"
+                  ? "GPS unavailable — based on your last known location. Move out of the area, upwind, immediately."
+                  : alertStatus === "danger"
                   ? "Leave now — move away from the incident, upwind, to safe distance."
-                  : "Move away from the area and follow responder direction."}
+                  : alertStatus === "protective"
+                  ? "Move out of the area and upwind; follow responder direction."
+                  : "You're downwind of the incident. Move crosswind, out of the wind line."}
               </Text>
             </View>
           </View>
         )}
 
-        {/* GPS lost while not (currently) inside a zone — disclaimer based on the last known fix. */}
-        {gpsStale && !zoneAlert && !settingIncident && location && (
+        {/* GPS lost while not (currently) flagged — disclaimer based on the last known fix. */}
+        {gpsStale && !alertStatus && !settingIncident && location && (
           <View style={[styles.alert, styles.alertInfo]}>
             <TriangleAlert size={18} color={colors.paper} />
             <View style={styles.alertBody}>
@@ -203,12 +227,19 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
             <Text style={styles.bannerText}>{error}</Text>
           </View>
         )}
+
+        {/* Wind compass — read at the incident; arrow points downwind. */}
+        {wind && incident && selected && !settingIncident && (
+          <View style={styles.windBadgeWrap} pointerEvents="none">
+            <WindBadge wind={wind} />
+          </View>
+        )}
       </View>
 
       <View style={styles.sheet}>
         <ScrollView style={styles.sheetScroll} contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
           {selected ? (
-            <InfoPanel good={selected} units={units} onChangeProduct={() => setPickerOpen(true)} />
+            <InfoPanel good={selected} units={units} wind={wind} onChangeProduct={() => setPickerOpen(true)} />
           ) : (
             <Text style={styles.help}>Tap “Select a dangerous good” above, then set the incident to draw the isolation zone.</Text>
           )}
@@ -251,11 +282,13 @@ const styles = StyleSheet.create({
   selectBannerText: { color: colors.paper, fontSize: 12, fontWeight: "600", flex: 1 },
   alert: { position: "absolute", top: spacing.md, left: spacing.md, right: spacing.md, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 13, paddingVertical: 11, borderRadius: radius.md, zIndex: 1002, ...shadow },
   alertCritical: { backgroundColor: colors.hmRed },
-  alertWarn: { backgroundColor: colors.warn },
+  alertProtective: { backgroundColor: colors.orange },
+  alertDownwind: { backgroundColor: colors.warn },
   alertInfo: { backgroundColor: colors.steel },
   alertBody: { flex: 1 },
   alertTitle: { color: colors.paper, fontSize: 13.5, fontWeight: "800" },
   alertText: { color: colors.paper, fontSize: 11.5, fontWeight: "500", marginTop: 1, opacity: 0.95 },
+  windBadgeWrap: { position: "absolute", right: spacing.md, bottom: spacing.lg, zIndex: 1000 },
   sheet: { maxHeight: "55%", backgroundColor: colors.canvas, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, marginTop: -radius.lg, ...shadow },
   sheetScroll: { flexShrink: 1 },
   sheetContent: { padding: spacing.lg, gap: spacing.md },
