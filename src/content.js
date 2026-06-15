@@ -146,7 +146,7 @@ export const DOCS = [
   {
     title: "HM Intel Mobile App — iOS & Android prototype", type: "Working app · live in-browser preview", status: ["Live", "p-prog"],
     link: "https://hm-intel-app.pavanaravelli690.workers.dev", linkLabel: "Open live app ↗",
-    summary: "The working HM Intel Isolation Distance Tool, built as a real native app for both iOS and Android with React Native (Expo) and matched to the approved high-fidelity design. Every core requirement is implemented — GPS with permission handling, current location on a map, dangerous-goods selection, the circular isolation zone, and the full information panel — alongside the optional enhancements (move the incident on the map, metres/kilometres, multiple distance zones) and a bonus live safety alert that warns the responder when their own position falls inside the isolation or protective zone. This link opens a live, in-browser preview of the running app; for a real on-device install, use the Android APK below.",
+    summary: "The working HM Intel Isolation Distance Tool, built as a real native app for both iOS and Android with React Native (Expo) and matched to the approved high-fidelity design. Every core requirement is implemented — GPS with permission handling, current location on a map, dangerous-goods selection, the circular isolation zone, and the full information panel — alongside the optional enhancements (move the incident on the map, metres/kilometres, multiple distance zones) and a bonus live safety alert that warns the responder when their own position falls inside the isolation or protective zone — now extended with a live wind & downwind-hazard model that reads the wind at the incident (Open-Meteo) and draws a downwind plume cone over the always-shown isolation and protective zones, flagging a responder who is downwind even while outside the circles. This link opens a live, in-browser preview of the running app; for a real on-device install, use the Android APK below.",
     meta: "React Native · Expo · iOS + Android · tested on-device",
     body: [
       ["h", "What is built"],
@@ -154,6 +154,7 @@ export const DOCS = [
         "Device GPS with clean permission handling and live location on the map (Google Maps on Android, native Apple Maps on iOS).",
         "Dangerous-goods selection from the five sample products, with search.",
         "Circular isolation zone around the incident, plus a concentric protective-action zone.",
+        "Live wind & downwind hazard: the wind read at the incident (Open-Meteo) draws a downwind plume cone over the isolation and protective zones, with a wind compass badge and a danger / protective / downwind / clear status.",
         "Full information panel: UN number, shipping name, hazard class, ERG guide, isolation and protective distances, and emergency contact (Call CANUTEC).",
         "All four controls: Use Current Location, Set Incident (drag the map and confirm), Toggle Zone, and Reset.",
       ]],
@@ -165,7 +166,7 @@ export const DOCS = [
         "Bonus: a real-time alert when the responder is inside a hazard zone, with leave-the-area guidance.",
       ]],
       ["h", "How it was verified"],
-      ["p", "Built and tested on a real Android emulator and an iPhone simulator, driving every flow end to end. Distances remain placeholders, as agreed for the trial."],
+      ["p", "Built and tested on a real Android emulator and an iPhone simulator, driving every flow end to end — including the new wind / downwind-hazard states. Distances remain placeholders, as agreed for the trial."],
       ["h", "Try it"],
       ["p", "Open the live preview in this browser, or install the Android APK (next document) on a phone for the real on-device experience."],
     ],
@@ -173,7 +174,7 @@ export const DOCS = [
   {
     title: "HM Intel Android App — install on a device (APK)", type: "Android install file · .apk", status: ["Download", "p-ok"],
     link: "/downloads/HM-Intel.apk", linkLabel: "Download APK ↓",
-    summary: "The Android build of the HM Intel app, packaged as an installable APK so it runs as a real app on an Android phone rather than in a browser. Download the file, open it on an Android device, and allow installation from your browser or Files app when prompted. (A real iOS install needs Apple TestFlight or a developer account; the live in-browser preview above covers iOS in the meantime.)",
+    summary: "The Android build of the HM Intel app, packaged as an installable APK so it runs as a real app on an Android phone rather than in a browser. Download the file, open it on an Android device, and allow installation from your browser or Files app when prompted. (A real iOS install needs Apple TestFlight or a developer account; the live in-browser preview above covers iOS in the meantime.) This build includes the live wind & downwind-hazard feature.",
     meta: "Signed release APK · sideload install",
   },
   {
