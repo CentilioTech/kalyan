@@ -60,7 +60,7 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
   }, [location, centerOn]);
 
   const handleUseCurrent = useCallback(async () => {
-    const loc = location ?? (await requestLocation());
+    const loc = (await requestLocation()) ?? location; // take a FRESH GPS fix on Locate so the incident matches the live position, not a stale watch value
     if (!loc) return;
     setSettingIncident(false);
     if (incident) {
