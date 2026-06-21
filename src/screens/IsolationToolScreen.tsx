@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Alert, LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, UIManager, View } from "react-native";
+import { LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, UIManager, View } from "react-native";
 import { Move, Crosshair, Check, Search, ChevronRight, ChevronsDown, ChevronUp, TriangleAlert, Wind as WindIcon } from "lucide-react-native";
 import { AppHeader } from "../components/AppHeader";
 import { ProductSelector } from "../components/ProductSelector";
@@ -8,6 +8,7 @@ import { MapControls } from "../components/MapControls";
 import { IsolationMap } from "../components/IsolationMap";
 import { WindBadge } from "../components/WindBadge";
 import { LockBadge } from "../components/LockBadge";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useLocation } from "../hooks/useLocation";
 import { useWind } from "../hooks/useWind";
 import { useZoneAlarm } from "../hooks/useZoneAlarm";
@@ -144,18 +145,9 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
     setFocus({ center: { latitude: DEFAULT_REGION.latitude, longitude: DEFAULT_REGION.longitude }, radiusM: 4000, key: Date.now() });
   }, []);
 
-  // Reset is destructive — confirm before clearing the incident/product/zone.
-  const confirmReset = useCallback(() => {
-    const msg = "Are you sure you want to reset? This clears the incident, product and zone.";
-    if (Platform.OS === "web") {
-      if (typeof window === "undefined" || window.confirm(msg)) handleReset();
-      return;
-    }
-    Alert.alert("Reset?", msg, [
-      { text: "Cancel", style: "cancel" },
-      { text: "Reset", style: "destructive", onPress: handleReset },
-    ]);
-  }, [handleReset]);
+  // Reset is destructive — confirm with a high-contrast in-app dialog first.
+  const [resetAsk, setResetAsk] = useState(false);
+  const confirmReset = useCallback(() => setResetAsk(true), []);
 
   const onSelectGood = useCallback(
     (g: DangerousGood) => {
@@ -345,6 +337,20 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
       </View>
 
       <ProductSelector visible={pickerOpen} onClose={() => setPickerOpen(false)} onSelect={onSelectGood} />
+
+      <ConfirmDialog
+        visible={resetAsk}
+        title="Reset?"
+        message="Are you sure you want to reset? This clears the incident, product and zone."
+        confirmLabel="Reset"
+        cancelLabel="Cancel"
+        destructive
+        onCancel={() => setResetAsk(false)}
+        onConfirm={() => {
+          setResetAsk(false);
+          handleReset();
+        }}
+      />
     </View>
   );
 }
