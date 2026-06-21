@@ -33,12 +33,12 @@ export function MapControls(p: Props) {
   return (
     <View style={styles.wrap}>
       <View style={styles.unitsRow}>
-        <Text style={styles.unitsLabel}>Distance units</Text>
-        <View style={styles.seg}>
-          <Pressable onPress={() => p.units !== "m" && p.onToggleUnits()} style={[styles.segBtn, p.units === "m" && styles.segOn]}>
+        <Text style={[styles.unitsLabel, p.locked && styles.unitsLabelLocked]}>Distance units</Text>
+        <View style={[styles.seg, p.locked && styles.segLocked]}>
+          <Pressable disabled={p.locked} onPress={() => p.units !== "m" && p.onToggleUnits()} style={[styles.segBtn, p.units === "m" && styles.segOn]}>
             <Text style={[styles.segText, p.units === "m" && styles.segTextOn]}>m</Text>
           </Pressable>
-          <Pressable onPress={() => p.units !== "km" && p.onToggleUnits()} style={[styles.segBtn, p.units === "km" && styles.segOn]}>
+          <Pressable disabled={p.locked} onPress={() => p.units !== "km" && p.onToggleUnits()} style={[styles.segBtn, p.units === "km" && styles.segOn]}>
             <Text style={[styles.segText, p.units === "km" && styles.segTextOn]}>km</Text>
           </Pressable>
         </View>
@@ -47,7 +47,7 @@ export function MapControls(p: Props) {
       <View style={styles.toolbar}>
         <Tool Icon={LocateFixed} label="Locate" onPress={p.onUseCurrent} active />
         <Tool Icon={MapPinPlus} label="Incident" onPress={p.onSetIncident} active={p.settingIncident} disabled={p.locked} />
-        <Tool Icon={p.zoneVisible ? CircleDot : CircleDashed} label="Zone" onPress={p.onToggleZone} disabled={!p.zoneEnabled} />
+        <Tool Icon={p.zoneVisible ? CircleDot : CircleDashed} label="Zone" onPress={p.onToggleZone} disabled={p.locked || !p.zoneEnabled} />
         <Tool Icon={RotateCcw} label="Reset" onPress={p.onReset} disabled={p.locked} />
       </View>
     </View>
@@ -58,7 +58,9 @@ const styles = StyleSheet.create({
   wrap: { gap: spacing.md },
   unitsRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   unitsLabel: { fontSize: 12, color: colors.slate, fontWeight: "600" },
+  unitsLabelLocked: { color: colors.muted, opacity: 0.6 },
   seg: { flexDirection: "row", borderWidth: 1, borderColor: colors.line, borderRadius: radius.sm, overflow: "hidden" },
+  segLocked: { opacity: 0.4 },
   segBtn: { paddingHorizontal: 16, paddingVertical: 6 },
   segOn: { backgroundColor: colors.hmRed },
   segText: { fontSize: 12, fontWeight: "700", color: colors.muted },

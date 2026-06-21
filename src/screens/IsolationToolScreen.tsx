@@ -22,8 +22,8 @@ if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental
 // Platform-neutral region type (the native map maps it onto react-native-maps' Region).
 type Region = { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number };
 
-// Sensible default view (London, Ontario) until we have a location or incident.
-const DEFAULT_REGION: Region = { latitude: 42.9849, longitude: -81.2453, latitudeDelta: 0.08, longitudeDelta: 0.08 };
+// Default map view until we have a location or incident (8 Connaught Ave, London, ON).
+const DEFAULT_REGION: Region = { latitude: 43.000076, longitude: -81.220613, latitudeDelta: 0.05, longitudeDelta: 0.05 };
 
 // Great-circle distance in metres between two coordinates (Haversine).
 function distanceM(a: LatLng, b: LatLng): number {
@@ -53,9 +53,16 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
 
   // Lock the setup so the incident, product and zone can't be changed by accident
-  // once a responder has it dialed in. Locking freezes Set-incident / Reset / change
-  // product; viewing, the panel collapse, Locate (recenter) and map zoom stay live.
+  // once a responder has it dialed in. Locking commits the zone to the map, then
+  // freezes Set-incident / Zone / Reset / units / change-product; only Locate
+  // (recenter), the panel collapse, viewing and map zoom stay live.
   const [locked, setLocked] = useState(false);
+  const toggleLock = useCallback(() => {
+    setLocked((wasLocked) => {
+      if (!wasLocked) setZoneVisible(true); // locking always draws/commits the product's zone
+      return !wasLocked;
+    });
+  }, []);
 
   // Collapsible info panel ("converged" banner). Expanded by default; remembers its
   // last state as the responder moves around so it stays out of the way once collapsed.
@@ -273,7 +280,7 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
             setup is complete (located + incident + product); freezes edits when on. */}
         {incident && selected && !settingIncident && (
           <View style={styles.lockBadgeWrap}>
-            <LockBadge locked={locked} onToggle={() => setLocked((v) => !v)} />
+            <LockBadge locked={locked} onToggle={toggleLock} />
           </View>
         )}
       </View>
