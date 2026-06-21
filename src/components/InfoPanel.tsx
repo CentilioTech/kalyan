@@ -39,23 +39,10 @@ export function InfoPanel({ good, units, wind, collapsed, locked, onChangeProduc
               <Text style={styles.name} numberOfLines={1}>{good.name}</Text>
             </View>
           </View>
-          {/* Isolation (red shield) + protective (broken circle) distances — side by side, centered, no words. */}
-          <View style={styles.collapsedMid}>
-            <View style={styles.collapsedMetric}>
-              <Shield size={14} color={colors.hmRed} />
-              <Text style={styles.collapsedIso}>{fmt(good.isolationM, units)}</Text>
-            </View>
-            <View style={styles.collapsedMetric}>
-              <View style={styles.collapsedDot} />
-              <Text style={styles.collapsedProt}>{fmt(good.protectiveM, units)}</Text>
-            </View>
-          </View>
           {/* ERG number on the RIGHT */}
-          <View style={styles.collapsedRight}>
-            <View style={styles.erg}>
-              <Text style={styles.ergLabel}>ERG</Text>
-              <Text style={styles.ergNum}>{good.ergGuide}</Text>
-            </View>
+          <View style={styles.erg}>
+            <Text style={styles.ergLabel}>ERG</Text>
+            <Text style={styles.ergNum}>{good.ergGuide}</Text>
           </View>
         </View>
       </Pressable>
@@ -131,7 +118,7 @@ const styles = StyleSheet.create({
   cardCollapsed: { paddingVertical: spacing.md },
   header: { flexDirection: "row", alignItems: "center", gap: spacing.md, marginBottom: spacing.md },
   headerCollapsed: { marginBottom: 0 },
-  collapsedLeft: { flexDirection: "row", alignItems: "center", gap: 8, flexShrink: 1, minWidth: 0 },
+  collapsedLeft: { flexDirection: "row", alignItems: "center", gap: 8, flex: 1, minWidth: 0 },
   collapsedId: { flexShrink: 1, minWidth: 0 },
   collapsedMid: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12 },
   collapsedRight: { flexShrink: 0, alignItems: "flex-end" },
