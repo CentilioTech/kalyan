@@ -3,7 +3,7 @@ import { Platform, StyleSheet } from "react-native";
 import MapView, { Circle, Marker, Polygon, PROVIDER_GOOGLE, Region } from "react-native-maps";
 
 // Android -> Google Maps (needs a key); iOS -> native Apple Maps (no key/pods needed).
-const MAP_PROVIDER = Platform.OS === "android" ? PROVIDER_GOOGLE : undefined;
+const MAP_PROVIDER = PROVIDER_GOOGLE; // Google Maps on BOTH iOS and Android
 import { DangerousGood, LatLng } from "../types";
 import { colors } from "../theme";
 

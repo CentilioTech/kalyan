@@ -10,6 +10,7 @@
     "splash": { "image": "./assets/hm-intel-logo.png", "resizeMode": "contain", "backgroundColor": "#FFFFFF" },
     "ios": {
       "supportsTablet": true,
+      "config": { "googleMapsApiKey": "REPLACE_WITH_IOS_GOOGLE_MAPS_API_KEY" },
       "bundleIdentifier": "ca.ctsolutions.hmintel",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "HM Intel uses your location to place the incident and draw the isolation zone around it."
