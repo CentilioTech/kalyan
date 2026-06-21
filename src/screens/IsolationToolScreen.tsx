@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, UIManager, View } from "react-native";
+import { Alert, LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, UIManager, View } from "react-native";
 import { Move, Crosshair, Check, Search, ChevronRight, ChevronsDown, ChevronUp, TriangleAlert, Wind as WindIcon } from "lucide-react-native";
 import { AppHeader } from "../components/AppHeader";
 import { ProductSelector } from "../components/ProductSelector";
@@ -10,6 +10,7 @@ import { WindBadge } from "../components/WindBadge";
 import { LockBadge } from "../components/LockBadge";
 import { useLocation } from "../hooks/useLocation";
 import { useWind } from "../hooks/useWind";
+import { useZoneAlarm } from "../hooks/useZoneAlarm";
 import { DangerousGood, LatLng, Units, WindStatus } from "../types";
 import { conePolygon, coneLengthFor, windStatus } from "../utils/wind";
 import { colors, radius, shadow, spacing } from "../theme";
@@ -143,6 +144,19 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
     setFocus({ center: { latitude: DEFAULT_REGION.latitude, longitude: DEFAULT_REGION.longitude }, radiusM: 4000, key: Date.now() });
   }, []);
 
+  // Reset is destructive — confirm before clearing the incident/product/zone.
+  const confirmReset = useCallback(() => {
+    const msg = "Are you sure you want to reset? This clears the incident, product and zone.";
+    if (Platform.OS === "web") {
+      if (typeof window === "undefined" || window.confirm(msg)) handleReset();
+      return;
+    }
+    Alert.alert("Reset?", msg, [
+      { text: "Cancel", style: "cancel" },
+      { text: "Reset", style: "destructive", onPress: handleReset },
+    ]);
+  }, [handleReset]);
+
   const onSelectGood = useCallback(
     (g: DangerousGood) => {
       setSelected(g);
@@ -174,6 +188,9 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
   );
   // Banners are only shown for actionable states (not "clear").
   const alertStatus = status === "clear" ? null : status;
+
+  // While the responder is in a hazard zone, buzz + notify "move out" every minute.
+  useZoneAlarm(alertStatus);
 
   return (
     <View style={styles.root}>
@@ -316,7 +333,7 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
             onUseCurrent={handleUseCurrent}
             onSetIncident={() => { if (!locked) setSettingIncident((s) => !s); }}
             onToggleZone={() => setZoneVisible((z) => !z)}
-            onReset={handleReset}
+            onReset={confirmReset}
             settingIncident={settingIncident}
             zoneVisible={zoneVisible}
             zoneEnabled={zoneEnabled}
