@@ -7,6 +7,7 @@ import { InfoPanel } from "../components/InfoPanel";
 import { MapControls } from "../components/MapControls";
 import { IsolationMap } from "../components/IsolationMap";
 import { WindBadge } from "../components/WindBadge";
+import { LockBadge } from "../components/LockBadge";
 import { useLocation } from "../hooks/useLocation";
 import { useWind } from "../hooks/useWind";
 import { DangerousGood, LatLng, Units, WindStatus } from "../types";
@@ -50,6 +51,11 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
   // Current map centre, kept in sync so "Confirm incident" can drop the pin under the crosshair.
   const [mapCenter, setMapCenter] = useState<LatLng>({ latitude: DEFAULT_REGION.latitude, longitude: DEFAULT_REGION.longitude });
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  // Lock the setup so the incident, product and zone can't be changed by accident
+  // once a responder has it dialed in. Locking freezes Set-incident / Reset / change
+  // product; viewing, the panel collapse, Locate (recenter) and map zoom stay live.
+  const [locked, setLocked] = useState(false);
 
   // Collapsible info panel ("converged" banner). Expanded by default; remembers its
   // last state as the responder moves around so it stays out of the way once collapsed.
@@ -125,6 +131,7 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
     setIncident(null);
     setSettingIncident(false);
     setZoneVisible(true);
+    setLocked(false);
     setUnits("m");
     setFocus({ center: { latitude: DEFAULT_REGION.latitude, longitude: DEFAULT_REGION.longitude }, radiusM: 4000, key: Date.now() });
   }, []);
@@ -261,6 +268,14 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
             <WindBadge wind={wind} />
           </View>
         )}
+
+        {/* Lock control — bottom-left, mirroring the wind badge. Appears once the
+            setup is complete (located + incident + product); freezes edits when on. */}
+        {incident && selected && !settingIncident && (
+          <View style={styles.lockBadgeWrap}>
+            <LockBadge locked={locked} onToggle={() => setLocked((v) => !v)} />
+          </View>
+        )}
       </View>
 
       <View style={styles.sheet}>
@@ -279,7 +294,8 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
               units={units}
               wind={wind}
               collapsed={!panelExpanded}
-              onChangeProduct={() => setPickerOpen(true)}
+              locked={locked}
+              onChangeProduct={() => { if (!locked) setPickerOpen(true); }}
               onExpand={() => setPanelAnimated(true)}
             />
           ) : (
@@ -291,7 +307,7 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
         <View style={styles.toolbarWrap}>
           <MapControls
             onUseCurrent={handleUseCurrent}
-            onSetIncident={() => setSettingIncident((s) => !s)}
+            onSetIncident={() => { if (!locked) setSettingIncident((s) => !s); }}
             onToggleZone={() => setZoneVisible((z) => !z)}
             onReset={handleReset}
             settingIncident={settingIncident}
@@ -299,6 +315,7 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
             zoneEnabled={zoneEnabled}
             units={units}
             onToggleUnits={() => setUnits((u) => (u === "m" ? "km" : "m"))}
+            locked={locked}
           />
         </View>
       </View>
@@ -331,6 +348,7 @@ const styles = StyleSheet.create({
   alertTitle: { color: colors.paper, fontSize: 13.5, fontWeight: "800" },
   alertText: { color: colors.paper, fontSize: 11.5, fontWeight: "500", marginTop: 1, opacity: 0.95 },
   windBadgeWrap: { position: "absolute", right: spacing.md, bottom: spacing.lg, zIndex: 1000 },
+  lockBadgeWrap: { position: "absolute", left: spacing.md, bottom: spacing.lg, zIndex: 1001 },
   sheet: { maxHeight: "55%", backgroundColor: colors.canvas, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, marginTop: -radius.lg, ...shadow },
   // Dark collapse/expand pill that straddles the top edge of the sheet (half over the map).
   collapseTabWrap: { position: "absolute", top: -13, left: 0, right: 0, alignItems: "center", zIndex: 1003 },

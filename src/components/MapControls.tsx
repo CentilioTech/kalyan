@@ -14,6 +14,8 @@ type Props = {
   zoneEnabled: boolean;
   units: Units;
   onToggleUnits: () => void;
+  /** When the setup is locked, editing the incident or resetting is frozen. */
+  locked?: boolean;
 };
 
 function Tool({ Icon, label, onPress, active = false, disabled = false }: { Icon: LucideIcon; label: string; onPress: () => void; active?: boolean; disabled?: boolean }) {
@@ -44,9 +46,9 @@ export function MapControls(p: Props) {
 
       <View style={styles.toolbar}>
         <Tool Icon={LocateFixed} label="Locate" onPress={p.onUseCurrent} active />
-        <Tool Icon={MapPinPlus} label="Incident" onPress={p.onSetIncident} active={p.settingIncident} />
+        <Tool Icon={MapPinPlus} label="Incident" onPress={p.onSetIncident} active={p.settingIncident} disabled={p.locked} />
         <Tool Icon={p.zoneVisible ? CircleDot : CircleDashed} label="Zone" onPress={p.onToggleZone} disabled={!p.zoneEnabled} />
-        <Tool Icon={RotateCcw} label="Reset" onPress={p.onReset} />
+        <Tool Icon={RotateCcw} label="Reset" onPress={p.onReset} disabled={p.locked} />
       </View>
     </View>
   );
