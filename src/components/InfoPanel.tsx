@@ -35,7 +35,7 @@ export function InfoPanel({ good, units, wind, collapsed, locked, onChangeProduc
           <View style={styles.collapsedLeft}>
             <HazardPlacard hazardClass={good.hazardClass} size={34} />
             <View style={styles.collapsedId}>
-              <Text style={styles.un}>{good.un}</Text>
+              <Text style={styles.un} numberOfLines={1}>{good.un}</Text>
               <Text style={styles.name} numberOfLines={1}>{good.name}</Text>
             </View>
           </View>
@@ -131,10 +131,10 @@ const styles = StyleSheet.create({
   cardCollapsed: { paddingVertical: spacing.md },
   header: { flexDirection: "row", alignItems: "center", gap: spacing.md, marginBottom: spacing.md },
   headerCollapsed: { marginBottom: 0 },
-  collapsedLeft: { flexDirection: "row", alignItems: "center", gap: 8, flex: 1, minWidth: 0 },
+  collapsedLeft: { flexDirection: "row", alignItems: "center", gap: 8, flexShrink: 1, minWidth: 0 },
   collapsedId: { flexShrink: 1, minWidth: 0 },
-  collapsedMid: { flexDirection: "row", alignItems: "center", gap: 14 },
-  collapsedRight: { flex: 1, alignItems: "flex-end" },
+  collapsedMid: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12 },
+  collapsedRight: { flexShrink: 0, alignItems: "flex-end" },
   collapsedMetric: { flexDirection: "row", alignItems: "center", gap: 5 },
   collapsedIso: { fontSize: 14, fontWeight: "800", color: colors.hmRed },
   collapsedProt: { fontSize: 14, fontWeight: "800", color: colors.steel },
