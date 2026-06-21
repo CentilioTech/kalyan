@@ -5,6 +5,7 @@ import { DangerousGood, Units, Wind } from "../types";
 import { colors, radius, spacing } from "../theme";
 import { compass8 } from "../utils/wind";
 import { HazardPlacard } from "./HazardPlacard";
+import { ProtectiveArcs } from "./ProtectiveArcs";
 
 type Props = { good: DangerousGood; units: Units; wind?: Wind | null; collapsed?: boolean; locked?: boolean; onChangeProduct?: () => void; onExpand?: () => void };
 
@@ -31,10 +32,19 @@ export function InfoPanel({ good, units, wind, collapsed, locked, onChangeProduc
         accessibilityLabel={`${good.un} ${good.name}. Tap for details`}
       >
         <View style={[styles.header, styles.headerCollapsed]}>
-          <HazardPlacard hazardClass={good.hazardClass} size={38} />
-          <View style={{ flex: 1 }}>
+          <HazardPlacard hazardClass={good.hazardClass} size={34} />
+          <View style={styles.collapsedId}>
             <Text style={styles.un}>{good.un}</Text>
-            <Text style={styles.name}>{good.name}</Text>
+            <Text style={styles.name} numberOfLines={1}>{good.name}</Text>
+          </View>
+          {/* Isolation (red shield) + protective (steel arcs) distances — symbol + value, no words. */}
+          <View style={styles.collapsedMetric}>
+            <Shield size={14} color={colors.hmRed} />
+            <Text style={styles.collapsedIso}>{fmt(good.isolationM, units)}</Text>
+          </View>
+          <View style={styles.collapsedMetric}>
+            <ProtectiveArcs size={15} color={colors.steel} />
+            <Text style={styles.collapsedProt}>{fmt(good.protectiveM, units)}</Text>
           </View>
           <View style={styles.erg}>
             <Text style={styles.ergLabel}>ERG</Text>
@@ -71,7 +81,7 @@ export function InfoPanel({ good, units, wind, collapsed, locked, onChangeProduc
         </View>
         <View style={[styles.dist, styles.distProt]}>
           <View style={styles.distLbl}>
-            <View style={styles.dotProt} />
+            <ProtectiveArcs size={12} color={colors.steel} />
             <Text style={styles.distLblProt}>PROTECTIVE</Text>
           </View>
           <Text style={styles.distNumProt}>{fmt(good.protectiveM, units)}</Text>
@@ -124,7 +134,11 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.paper, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.line, padding: spacing.lg },
   cardCollapsed: { paddingVertical: spacing.md },
   header: { flexDirection: "row", alignItems: "center", gap: spacing.md, marginBottom: spacing.md },
-  headerCollapsed: { marginBottom: 0 },
+  headerCollapsed: { marginBottom: 0, gap: 9 },
+  collapsedId: { flexShrink: 1, minWidth: 40 },
+  collapsedMetric: { flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 0 },
+  collapsedIso: { fontSize: 13.5, fontWeight: "800", color: colors.hmRed },
+  collapsedProt: { fontSize: 13.5, fontWeight: "800", color: colors.steel },
   un: { fontSize: 16, fontWeight: "800", color: colors.ink, letterSpacing: -0.2 },
   name: { fontSize: 12, color: colors.steel, marginTop: 1 },
   erg: { backgroundColor: colors.ink, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5, alignItems: "center" },
