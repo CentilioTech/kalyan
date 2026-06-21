@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Move, Crosshair, Check, Search, ChevronRight, TriangleAlert, Wind as WindIcon } from "lucide-react-native";
+import { LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, UIManager, View } from "react-native";
+import { Move, Crosshair, Check, Search, ChevronRight, ChevronsDown, ChevronUp, TriangleAlert, Wind as WindIcon } from "lucide-react-native";
 import { AppHeader } from "../components/AppHeader";
 import { ProductSelector } from "../components/ProductSelector";
 import { InfoPanel } from "../components/InfoPanel";
@@ -12,6 +12,11 @@ import { useWind } from "../hooks/useWind";
 import { DangerousGood, LatLng, Units, WindStatus } from "../types";
 import { conePolygon, coneLengthFor, windStatus } from "../utils/wind";
 import { colors, radius, shadow, spacing } from "../theme";
+
+// Enable LayoutAnimation on Android (iOS/web handle it natively / no-op).
+if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 // Platform-neutral region type (the native map maps it onto react-native-maps' Region).
 type Region = { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number };
@@ -45,6 +50,27 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
   // Current map centre, kept in sync so "Confirm incident" can drop the pin under the crosshair.
   const [mapCenter, setMapCenter] = useState<LatLng>({ latitude: DEFAULT_REGION.latitude, longitude: DEFAULT_REGION.longitude });
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  // Collapsible info panel ("converged" banner). Expanded by default; remembers its
+  // last state as the responder moves around so it stays out of the way once collapsed.
+  const [panelExpanded, setPanelExpanded] = useState(true);
+  const panelExpandedRef = useRef(true);
+  panelExpandedRef.current = panelExpanded;
+  const setPanelAnimated = useCallback((v: boolean) => {
+    LayoutAnimation.configureNext(LayoutAnimation.create(180, LayoutAnimation.Types.easeInEaseOut, LayoutAnimation.Properties.opacity));
+    setPanelExpanded(v);
+  }, []);
+  // Drag the handle down to collapse / up (or tap) to expand.
+  const panelPan = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderRelease: (_evt, g) => {
+        if (g.dy > 14) setPanelAnimated(false);
+        else if (g.dy < -14) setPanelAnimated(true);
+        else setPanelAnimated(!panelExpandedRef.current);
+      },
+    })
+  ).current;
 
   const centerOn = useCallback((c: LatLng, radiusM = 600) => {
     setFocus({ center: c, radiusM, key: Date.now() });
@@ -106,6 +132,7 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
   const onSelectGood = useCallback(
     (g: DangerousGood) => {
       setSelected(g);
+      setPanelExpanded(true); // a freshly chosen product always opens expanded
       if (incident) centerOn(incident, g.protectiveM ?? g.isolationM);
     },
     [incident, centerOn]
@@ -237,9 +264,24 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
       </View>
 
       <View style={styles.sheet}>
+        {selected && !settingIncident && (
+          <View style={styles.collapseTabWrap} pointerEvents="box-none">
+            <View style={styles.collapseTab} {...panelPan.panHandlers}>
+              {panelExpanded ? <ChevronsDown size={13} color={colors.paper} /> : <ChevronUp size={13} color={colors.paper} />}
+              <Text style={styles.collapseTabText}>{panelExpanded ? "Drag down to collapse" : "Tap for details"}</Text>
+            </View>
+          </View>
+        )}
         <ScrollView style={styles.sheetScroll} contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
           {selected ? (
-            <InfoPanel good={selected} units={units} wind={wind} onChangeProduct={() => setPickerOpen(true)} />
+            <InfoPanel
+              good={selected}
+              units={units}
+              wind={wind}
+              collapsed={!panelExpanded}
+              onChangeProduct={() => setPickerOpen(true)}
+              onExpand={() => setPanelAnimated(true)}
+            />
           ) : (
             <Text style={styles.help}>Tap “Select a dangerous good” above, then set the incident to draw the isolation zone.</Text>
           )}
@@ -290,6 +332,10 @@ const styles = StyleSheet.create({
   alertText: { color: colors.paper, fontSize: 11.5, fontWeight: "500", marginTop: 1, opacity: 0.95 },
   windBadgeWrap: { position: "absolute", right: spacing.md, bottom: spacing.lg, zIndex: 1000 },
   sheet: { maxHeight: "55%", backgroundColor: colors.canvas, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, marginTop: -radius.lg, ...shadow },
+  // Dark collapse/expand pill that straddles the top edge of the sheet (half over the map).
+  collapseTabWrap: { position: "absolute", top: -13, left: 0, right: 0, alignItems: "center", zIndex: 1003 },
+  collapseTab: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: colors.ink, paddingHorizontal: 13, paddingVertical: 6, borderRadius: radius.pill, ...shadow },
+  collapseTabText: { color: colors.paper, fontSize: 11, fontWeight: "700" },
   sheetScroll: { flexShrink: 1 },
   sheetContent: { padding: spacing.lg, gap: spacing.md },
   toolbarWrap: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.canvas },

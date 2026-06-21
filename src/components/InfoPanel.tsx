@@ -6,7 +6,7 @@ import { colors, radius, spacing } from "../theme";
 import { compass8 } from "../utils/wind";
 import { HazardPlacard } from "./HazardPlacard";
 
-type Props = { good: DangerousGood; units: Units; wind?: Wind | null; onChangeProduct?: () => void };
+type Props = { good: DangerousGood; units: Units; wind?: Wind | null; collapsed?: boolean; onChangeProduct?: () => void; onExpand?: () => void };
 
 const fmt = (m: number, units: Units) => (units === "km" ? `${(m / 1000).toFixed(m % 1000 === 0 ? 0 : 2)} km` : `${m} m`);
 
@@ -20,7 +20,31 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 /** Dangerous-goods information panel shown once a product is selected. */
-export function InfoPanel({ good, units, wind, onChangeProduct }: Props) {
+export function InfoPanel({ good, units, wind, collapsed, onChangeProduct, onExpand }: Props) {
+  // Converged state: show only the header strip (placard · UN/name · ERG); tap to expand.
+  if (collapsed) {
+    return (
+      <Pressable
+        style={[styles.card, styles.cardCollapsed]}
+        onPress={onExpand}
+        accessibilityRole="button"
+        accessibilityLabel={`${good.un} ${good.name}. Tap for details`}
+      >
+        <View style={[styles.header, styles.headerCollapsed]}>
+          <HazardPlacard hazardClass={good.hazardClass} size={38} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.un}>{good.un}</Text>
+            <Text style={styles.name}>{good.name}</Text>
+          </View>
+          <View style={styles.erg}>
+            <Text style={styles.ergLabel}>ERG</Text>
+            <Text style={styles.ergNum}>{good.ergGuide}</Text>
+          </View>
+        </View>
+      </Pressable>
+    );
+  }
+
   return (
     <View style={styles.card}>
       <Pressable style={styles.header} onPress={onChangeProduct}>
@@ -97,7 +121,9 @@ export function InfoPanel({ good, units, wind, onChangeProduct }: Props) {
 
 const styles = StyleSheet.create({
   card: { backgroundColor: colors.paper, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.line, padding: spacing.lg },
+  cardCollapsed: { paddingVertical: spacing.md },
   header: { flexDirection: "row", alignItems: "center", gap: spacing.md, marginBottom: spacing.md },
+  headerCollapsed: { marginBottom: 0 },
   un: { fontSize: 16, fontWeight: "800", color: colors.ink, letterSpacing: -0.2 },
   name: { fontSize: 12, color: colors.steel, marginTop: 1 },
   erg: { backgroundColor: colors.ink, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5, alignItems: "center" },
