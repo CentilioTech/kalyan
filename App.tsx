@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native";
@@ -6,10 +6,19 @@ import { IsolationToolScreen } from "./src/screens/IsolationToolScreen";
 import { PermissionScreen } from "./src/screens/PermissionScreen";
 import { useLocation } from "./src/hooks/useLocation";
 import { colors } from "./src/theme";
+// Registers the headless background-location task at startup (must be in global
+// scope before the OS can invoke it). Native-only; a no-op on web.
+import "./src/tasks/zoneTask";
+import { ensureAndroidChannel } from "./src/services/backgroundZone";
 
 export default function App() {
   const [entered, setEntered] = useState(false);
   const locationApi = useLocation();
+
+  // Create the Android high-importance alert channel once at startup.
+  useEffect(() => {
+    ensureAndroidChannel();
+  }, []);
 
   const handleAllow = () => {
     // Enter immediately; the location fills in via the live watch. Never block

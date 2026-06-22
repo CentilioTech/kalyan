@@ -2,7 +2,7 @@
   "expo": {
     "name": "HM Intel",
     "slug": "hm-intel-app",
-    "version": "3.0.0",
+    "version": "3.1.0",
     "orientation": "portrait",
     "icon": "./assets/hm-intel-logo.png",
     "userInterfaceStyle": "light",
@@ -12,16 +12,34 @@
       "supportsTablet": true,
       "bundleIdentifier": "ca.ctsolutions.hmintel",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "HM Intel uses your location to place the incident and draw the isolation zone around it."
+        "NSLocationWhenInUseUsageDescription": "HM Intel uses your location to place the incident and draw the isolation zone around it.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "HM Intel watches your distance from the incident hazard zone and alerts you to move out — even when the app is in the background.",
+        "UIBackgroundModes": ["location"]
       }
     },
     "android": {
       "package": "ca.ctsolutions.hmintel",
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "POST_NOTIFICATIONS",
+        "VIBRATE"
+      ],
       "config": { "googleMaps": { "apiKey": "AIzaSyDSniRBkiodVxODvpWUBfPpJKe2-WcjXPQ" } }
     },
     "plugins": [
-      ["expo-location", { "locationWhenInUsePermission": "HM Intel uses your location to place the incident and draw the isolation zone around it." }]
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "HM Intel uses your location to place the incident and draw the isolation zone around it.",
+          "locationAlwaysAndWhenInUsePermission": "HM Intel watches your distance from the incident hazard zone and alerts you to move out — even when the app is in the background.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ]
     ]
   }
 }

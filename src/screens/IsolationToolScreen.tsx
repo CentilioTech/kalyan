@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, UIManager, View } from "react-native";
+import { LayoutAnimation, Platform, Pressable, ScrollView, StyleSheet, Text, UIManager, View } from "react-native";
 import { Move, Crosshair, Check, X, Search, ChevronRight, ChevronsDown, ChevronUp, TriangleAlert, Wind as WindIcon } from "lucide-react-native";
 import { AppHeader } from "../components/AppHeader";
 import { ProductSelector } from "../components/ProductSelector";
@@ -12,7 +12,8 @@ import { Glass } from "../components/Glass";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useLocation } from "../hooks/useLocation";
 import { useWind } from "../hooks/useWind";
-import { useZoneAlarm } from "../hooks/useZoneAlarm";
+import { writeArmedConfig, disarm } from "../services/zoneStore";
+import { startBackgroundZone, stopBackgroundZone } from "../services/backgroundZone";
 import { DangerousGood, LatLng, Units, WindStatus } from "../types";
 import { conePolygon, coneLengthFor, windStatus } from "../utils/wind";
 import { colors, radius, shadow, spacing } from "../theme";
@@ -76,17 +77,9 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
     LayoutAnimation.configureNext(LayoutAnimation.create(180, LayoutAnimation.Types.easeInEaseOut, LayoutAnimation.Properties.opacity));
     setPanelExpanded(v);
   }, []);
-  // Drag the handle down to collapse / up (or tap) to expand.
-  const panelPan = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderRelease: (_evt, g) => {
-        if (g.dy > 14) setPanelAnimated(false);
-        else if (g.dy < -14) setPanelAnimated(true);
-        else setPanelAnimated(!panelExpandedRef.current);
-      },
-    })
-  ).current;
+  // Plain tap toggle on the handle — a Pressable, so it works reliably every time
+  // (the previous PanResponder could get stuck after a toggle or two).
+  const togglePanel = useCallback(() => setPanelAnimated(!panelExpandedRef.current), [setPanelAnimated]);
 
   const centerOn = useCallback((c: LatLng, radiusM = 600) => {
     setFocus({ center: c, radiusM, key: Date.now() });
@@ -182,8 +175,26 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
   // Banners are only shown for actionable states (not "clear").
   const alertStatus = status === "clear" ? null : status;
 
-  // While the responder is in a hazard zone, buzz + notify "move out" every minute.
-  useZoneAlarm(alertStatus);
+  // Arm the background hazard monitor whenever there's an active incident + product.
+  // Persists the zone config and starts background location updates so the "move out"
+  // alert fires even when the app is backgrounded or the screen is off.
+  useEffect(() => {
+    if (incident && selected) {
+      writeArmedConfig({
+        lat: incident.latitude,
+        lng: incident.longitude,
+        isolationM: selected.isolationM,
+        protectiveM: selected.protectiveM,
+        coneLengthM,
+        wind: wind ? { fromDeg: wind.fromDeg, speedKmh: wind.speedKmh, calm: wind.calm } : null,
+      });
+      startBackgroundZone();
+    } else {
+      disarm();
+      stopBackgroundZone();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incident?.latitude, incident?.longitude, selected, coneLengthM, wind]);
 
   return (
     <View style={styles.root}>
@@ -289,24 +300,34 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
           so the crosshair + confirm own the full map. */}
       {!settingIncident && (
         <View style={styles.sheetWrap} pointerEvents="box-none">
-          {/* Wind compass (right) + Lock (left) — float just above the sheet, over the map. */}
-          {wind && incident && selected && (
-            <View style={styles.windBadgeWrap} pointerEvents="none">
-              <WindBadge wind={wind} />
-            </View>
-          )}
+          {/* Lock (left) + Wind compass (right) — both float on the same line just above the sheet, over the map. */}
           {incident && selected && (
-            <View style={styles.lockBadgeWrap}>
-              <LockBadge locked={locked} onToggle={toggleLock} />
+            <View style={styles.badgeRow} pointerEvents="box-none">
+              <View pointerEvents="auto">
+                <LockBadge locked={locked} onToggle={toggleLock} />
+              </View>
+              {wind ? (
+                <View pointerEvents="none">
+                  <WindBadge wind={wind} />
+                </View>
+              ) : (
+                <View />
+              )}
             </View>
           )}
 
           {selected && (
             <View style={styles.collapseTabWrap} pointerEvents="box-none">
-              <View style={styles.collapseTab} {...panelPan.panHandlers}>
+              <Pressable
+                onPress={togglePanel}
+                hitSlop={12}
+                accessibilityRole="button"
+                accessibilityLabel={panelExpanded ? "Collapse details" : "Expand details"}
+                style={({ pressed }) => [styles.collapseTab, pressed && styles.pressed]}
+              >
                 {panelExpanded ? <ChevronsDown size={13} color={colors.paper} /> : <ChevronUp size={13} color={colors.paper} />}
-                <Text style={styles.collapseTabText}>{panelExpanded ? "Drag down to collapse" : "Tap for details"}</Text>
-              </View>
+                <Text style={styles.collapseTabText}>{panelExpanded ? "Tap to collapse" : "Tap for details"}</Text>
+              </Pressable>
             </View>
           )}
 
@@ -393,8 +414,9 @@ const styles = StyleSheet.create({
   // Floating sheet
   sheetWrap: { position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "55%", ...shadow },
   sheetGlass: { ...StyleSheet.absoluteFillObject, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, borderTopWidth: 1, borderColor: "rgba(255,255,255,0.5)" },
-  windBadgeWrap: { position: "absolute", right: spacing.md, top: -54, zIndex: 1000 },
-  lockBadgeWrap: { position: "absolute", left: spacing.md, top: -50, zIndex: 1001 },
+  // Lock + wind badges share one row anchored just above the sheet's top edge, with
+  // alignItems:flex-end so they float on the same baseline regardless of height.
+  badgeRow: { position: "absolute", left: spacing.md, right: spacing.md, bottom: "100%", marginBottom: spacing.sm, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", zIndex: 1001 },
   collapseTabWrap: { position: "absolute", top: -13, left: 0, right: 0, alignItems: "center", zIndex: 1003 },
   collapseTab: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: colors.ink, paddingHorizontal: 13, paddingVertical: 6, borderRadius: radius.pill, ...shadow },
   collapseTabText: { color: colors.paper, fontSize: 11, fontWeight: "700" },
