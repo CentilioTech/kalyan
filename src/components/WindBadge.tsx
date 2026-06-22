@@ -1,9 +1,10 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import { ArrowUp, Minus } from "lucide-react-native";
 import { Wind } from "../types";
-import { colors, radius, shadow } from "../theme";
+import { colors, radius } from "../theme";
 import { compass8, downwindBearing } from "../utils/wind";
+import { Glass } from "./Glass";
 
 /**
  * Compact compass badge showing the wind read at the incident.
@@ -12,7 +13,7 @@ import { compass8, downwindBearing } from "../utils/wind";
 export function WindBadge({ wind }: { wind: Wind | null }) {
   if (!wind) return null;
   return (
-    <View style={styles.badge}>
+    <Glass style={styles.badge} intensity={45} overlay="rgba(255,255,255,0.62)">
       {wind.calm ? (
         <Minus size={18} color={colors.steel} />
       ) : (
@@ -20,22 +21,12 @@ export function WindBadge({ wind }: { wind: Wind | null }) {
       )}
       <Text style={styles.dir}>{wind.calm ? "CALM" : `${compass8(wind.fromDeg)}→`}</Text>
       <Text style={styles.spd}>{wind.calm ? "<3 km/h" : `${Math.round(wind.speedKmh)} km/h`}</Text>
-    </View>
+    </Glass>
   );
 }
 
 const styles = StyleSheet.create({
-  badge: {
-    width: 56,
-    backgroundColor: "rgba(255,255,255,0.94)",
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.line,
-    alignItems: "center",
-    paddingVertical: 7,
-    gap: 1,
-    ...shadow,
-  },
+  badge: { width: 56, borderRadius: radius.md, borderWidth: 1, borderColor: colors.line, alignItems: "center", paddingVertical: 7, gap: 1 },
   dir: { fontSize: 11, fontWeight: "800", color: colors.ink, marginTop: 2 },
-  spd: { fontSize: 8, fontWeight: "600", color: colors.muted, letterSpacing: 0.2 },
+  spd: { fontSize: 8.5, fontWeight: "700", color: colors.slate, letterSpacing: 0.2 },
 });

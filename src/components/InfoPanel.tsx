@@ -5,6 +5,7 @@ import { DangerousGood, Units, Wind } from "../types";
 import { colors, radius, spacing } from "../theme";
 import { compass8 } from "../utils/wind";
 import { HazardPlacard } from "./HazardPlacard";
+import { Glass } from "./Glass";
 
 type Props = { good: DangerousGood; units: Units; wind?: Wind | null; collapsed?: boolean; locked?: boolean; onChangeProduct?: () => void; onExpand?: () => void };
 
@@ -19,38 +20,36 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
+const GLASS_INTENSITY = 35;
+const GLASS_OVERLAY = "rgba(255,255,255,0.85)"; // mostly solid — readable, with a hint of glass
+
 /** Dangerous-goods information panel shown once a product is selected. */
 export function InfoPanel({ good, units, wind, collapsed, locked, onChangeProduct, onExpand }: Props) {
-  // Converged state: show only the header strip (placard · UN/name · ERG); tap to expand.
+  // Converged state: show only the header strip (UN on the left, ERG on the right); tap to expand.
   if (collapsed) {
     return (
-      <Pressable
-        style={[styles.card, styles.cardCollapsed]}
-        onPress={onExpand}
-        accessibilityRole="button"
-        accessibilityLabel={`${good.un} ${good.name}. Tap for details`}
-      >
-        <View style={[styles.header, styles.headerCollapsed]}>
-          {/* UN number on the LEFT */}
-          <View style={styles.collapsedLeft}>
-            <HazardPlacard hazardClass={good.hazardClass} size={34} />
-            <View style={styles.collapsedId}>
-              <Text style={styles.un} numberOfLines={1}>{good.un}</Text>
-              <Text style={styles.name} numberOfLines={1}>{good.name}</Text>
+      <Pressable onPress={onExpand} accessibilityRole="button" accessibilityLabel={`${good.un} ${good.name}. Tap for details`}>
+        <Glass style={[styles.card, styles.cardCollapsed]} intensity={GLASS_INTENSITY} overlay={GLASS_OVERLAY}>
+          <View style={[styles.header, styles.headerCollapsed]}>
+            <View style={styles.collapsedLeft}>
+              <HazardPlacard hazardClass={good.hazardClass} size={34} />
+              <View style={styles.collapsedId}>
+                <Text style={styles.un} numberOfLines={1}>{good.un}</Text>
+                <Text style={styles.name} numberOfLines={1}>{good.name}</Text>
+              </View>
+            </View>
+            <View style={styles.erg}>
+              <Text style={styles.ergLabel}>ERG</Text>
+              <Text style={styles.ergNum}>{good.ergGuide}</Text>
             </View>
           </View>
-          {/* ERG number on the RIGHT */}
-          <View style={styles.erg}>
-            <Text style={styles.ergLabel}>ERG</Text>
-            <Text style={styles.ergNum}>{good.ergGuide}</Text>
-          </View>
-        </View>
+        </Glass>
       </Pressable>
     );
   }
 
   return (
-    <View style={styles.card}>
+    <Glass style={styles.card} intensity={GLASS_INTENSITY} overlay={GLASS_OVERLAY}>
       <Pressable style={styles.header} onPress={locked ? undefined : onChangeProduct} disabled={locked}>
         <HazardPlacard hazardClass={good.hazardClass} size={38} />
         <View style={{ flex: 1 }}>
@@ -109,23 +108,17 @@ export function InfoPanel({ good, units, wind, collapsed, locked, onChangeProduc
         <TriangleAlert size={13} color={colors.hmRedDeep} />
         <Text style={styles.discText}>Placeholder data — always verify against the current ERG on scene.</Text>
       </View>
-    </View>
+    </Glass>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: colors.paper, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.line, padding: spacing.lg },
+  card: { borderRadius: radius.lg, borderWidth: 1, borderColor: colors.line, padding: spacing.lg },
   cardCollapsed: { paddingVertical: spacing.md },
   header: { flexDirection: "row", alignItems: "center", gap: spacing.md, marginBottom: spacing.md },
   headerCollapsed: { marginBottom: 0 },
   collapsedLeft: { flexDirection: "row", alignItems: "center", gap: 8, flex: 1, minWidth: 0 },
   collapsedId: { flexShrink: 1, minWidth: 0 },
-  collapsedMid: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12 },
-  collapsedRight: { flexShrink: 0, alignItems: "flex-end" },
-  collapsedMetric: { flexDirection: "row", alignItems: "center", gap: 5 },
-  collapsedIso: { fontSize: 14, fontWeight: "800", color: colors.hmRed },
-  collapsedProt: { fontSize: 14, fontWeight: "800", color: colors.steel },
-  collapsedDot: { width: 13, height: 13, borderRadius: 7, borderWidth: 2, borderColor: colors.steel, borderStyle: "dashed" },
   un: { fontSize: 16, fontWeight: "800", color: colors.ink, letterSpacing: -0.2 },
   name: { fontSize: 12, color: colors.steel, marginTop: 1 },
   erg: { backgroundColor: colors.ink, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5, alignItems: "center" },
@@ -142,11 +135,6 @@ const styles = StyleSheet.create({
   distNumIso: { fontSize: 21, fontWeight: "800", color: colors.hmRed, marginTop: 3 },
   distNumProt: { fontSize: 21, fontWeight: "800", color: colors.steel, marginTop: 3 },
   distFt: { fontSize: 8.5, color: colors.muted, marginTop: 2 },
-  legend: { flexDirection: "row", gap: spacing.lg, marginBottom: spacing.sm, paddingVertical: 2 },
-  legendItem: { flexDirection: "row", alignItems: "center", gap: 6 },
-  sw: { width: 12, height: 12, borderRadius: 3 },
-  swProt: { backgroundColor: "transparent", borderWidth: 1.5, borderColor: colors.steel, borderStyle: "dashed" },
-  legendText: { fontSize: 11, color: colors.slate, fontWeight: "600" },
   windRow: { flexDirection: "row", alignItems: "center", gap: 7, backgroundColor: colors.canvas, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 10, paddingVertical: 9, marginTop: spacing.sm },
   windLabel: { fontSize: 11.5, color: colors.slate, fontWeight: "600" },
   windVal: { marginLeft: "auto", fontSize: 12, fontWeight: "800", color: colors.ink },
