@@ -12,6 +12,7 @@ import { Glass } from "../components/Glass";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useLocation } from "../hooks/useLocation";
 import { useWind } from "../hooks/useWind";
+import { useZoneAlarm } from "../hooks/useZoneAlarm";
 import { writeArmedConfig, disarm } from "../services/zoneStore";
 import { startBackgroundZone, stopBackgroundZone } from "../services/backgroundZone";
 import { DangerousGood, LatLng, Units, WindStatus } from "../types";
@@ -174,6 +175,9 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
   );
   // Banners are only shown for actionable states (not "clear").
   const alertStatus = status === "clear" ? null : status;
+
+  // Foreground alarm: buzz + notify "move out" while on screen and in a hazard zone.
+  useZoneAlarm(alertStatus);
 
   // Arm the background hazard monitor whenever there's an active incident + product.
   // Persists the zone config and starts background location updates so the "move out"

@@ -1,22 +1,15 @@
-import { Platform, Vibration } from "react-native";
+import { AppState, Platform } from "react-native";
 import * as TaskManager from "expo-task-manager";
 import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { windStatus } from "../utils/wind";
-import { DangerousGood, WindStatus } from "../types";
-import { readArmed, markAlerted } from "./../services/zoneStore";
+import { DangerousGood } from "../types";
+import { readArmed } from "../services/zoneStore";
+import { maybeFireZoneAlert } from "../services/zoneAlert";
 
 export const ZONE_TASK = "HMINTEL_ZONE_TASK";
 
 const isNative = Platform.OS !== "web";
-const ALARM_MS = 60000; // one alert per minute while in a hazard zone
-const STRONG_PATTERN = [0, 700, 300, 700, 300, 700];
-
-function zoneLabel(status: WindStatus): string {
-  if (status === "danger") return "isolation zone";
-  if (status === "protective") return "protective-action zone";
-  return "downwind hazard area";
-}
 
 // Foreground display + sound, so the alert shows whether or not the app is on screen.
 if (isNative) {
@@ -26,15 +19,17 @@ if (isNative) {
 }
 
 /**
- * Headless background-location task. Runs in BOTH foreground and background while
- * location updates are active. On each fix it reads the armed zone from disk,
- * recomputes whether the responder is inside a hazard zone, and — throttled to one
- * per minute — fires a phone notification + strong vibration telling them to move
- * out. This is what makes the alert work with the app backgrounded / screen off.
+ * Headless background-location task. The OS invokes it with each location batch
+ * while background location updates are active — including when the app is
+ * backgrounded or the screen is off. It reads the armed zone from disk, recomputes
+ * whether the responder is in a hazard zone, and fires the throttled "move out"
+ * alert. While the app is on screen the foreground hook owns alerts (AppState gate),
+ * so the two never double up.
  */
 if (isNative) {
   TaskManager.defineTask(ZONE_TASK, async ({ data, error }: any) => {
     if (error) return;
+    if (AppState.currentState === "active") return; // foreground hook handles it
     const locations = data?.locations as Location.LocationObject[] | undefined;
     if (!locations || locations.length === 0) return;
 
@@ -50,29 +45,6 @@ if (isNative) {
       coneLengthM: z.coneLengthM,
     });
 
-    if (!status || status === "clear") return;
-
-    const now = Date.now();
-    if (now - (z.lastAlertAt || 0) < ALARM_MS) return; // throttle
-    await markAlerted(now);
-
-    try {
-      Vibration.vibrate(STRONG_PATTERN);
-    } catch {
-      /* ignore */
-    }
-    try {
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: "⚠️ Move out of the restricted zone",
-          body: `You are in the ${zoneLabel(status)}. Move out now — upwind, to a safe distance.`,
-          sound: true,
-          ...(Platform.OS === "android" ? { channelId: "default", vibrate: STRONG_PATTERN } : {}),
-        },
-        trigger: null, // immediate
-      });
-    } catch {
-      /* notification best-effort; vibration already fired */
-    }
+    await maybeFireZoneAlert(status);
   });
 }

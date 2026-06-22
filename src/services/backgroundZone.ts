@@ -50,9 +50,9 @@ export async function startBackgroundZone(): Promise<boolean> {
     if (already) return true;
 
     await Location.startLocationUpdatesAsync(ZONE_TASK, {
-      accuracy: Location.Accuracy.Balanced,
-      timeInterval: 5000,
-      distanceInterval: 5,
+      accuracy: Location.Accuracy.High,
+      timeInterval: 10000,
+      distanceInterval: 0, // deliver on the timer even when stationary, so a responder standing in the zone still gets repeat alerts
       pausesUpdatesAutomatically: false,
       showsBackgroundLocationIndicator: true,
       foregroundService: {

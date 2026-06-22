@@ -2,7 +2,7 @@
   "expo": {
     "name": "HM Intel",
     "slug": "hm-intel-app",
-    "version": "3.1.0",
+    "version": "3.1.1",
     "orientation": "portrait",
     "icon": "./assets/hm-intel-logo.png",
     "userInterfaceStyle": "light",
