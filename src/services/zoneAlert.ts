@@ -6,6 +6,17 @@ import { readArmed, markAlerted } from "./zoneStore";
 const ALARM_MS = 60000; // one alert per minute while in a hazard zone
 const STRONG_PATTERN = [0, 700, 300, 700, 300, 700];
 
+// Synchronous in-memory throttle. The foreground alarm hook and the background
+// location task both run in the SAME JS runtime, so this single timestamp dedupes
+// them race-free: it's checked AND claimed before any `await`, so two updates that
+// arrive in the same tick can't both fire (which previously caused 2–3 alert bursts).
+let lastFireMs = 0;
+
+/** Clear the throttle so a freshly-armed incident can alert immediately (called on reset/disarm). */
+export function resetZoneThrottle(): void {
+  lastFireMs = 0;
+}
+
 function zoneLabel(status: WindStatus): string {
   if (status === "danger") return "isolation zone";
   if (status === "protective") return "protective-action zone";
@@ -13,19 +24,23 @@ function zoneLabel(status: WindStatus): string {
 }
 
 /**
- * Fire a "move out" notification + strong vibration, throttled to once per minute
- * via the shared persisted timestamp. Used by BOTH the foreground alarm hook and
- * the background-location task, so the throttle is coordinated across them and the
- * responder never gets a double alert at a foreground/background transition.
+ * Fire a "move out" notification + strong vibration, at most once per minute. Used
+ * by BOTH the foreground alarm hook and the background-location task; the in-memory
+ * throttle keeps them to exactly one alert per minute while in a hazard zone.
  * Returns true if it actually fired.
  */
 export async function maybeFireZoneAlert(status: WindStatus | null): Promise<boolean> {
   if (Platform.OS === "web" || !status || status === "clear") return false;
-  const z = await readArmed();
-  if (z && z.armed === false) return false; // disarmed (reset)
   const now = Date.now();
-  if (z && now - (z.lastAlertAt || 0) < ALARM_MS) return false; // throttle
-  await markAlerted(now);
+  if (now - lastFireMs < ALARM_MS) return false; // throttle (synchronous — no race)
+  lastFireMs = now; // claim the slot immediately, before any await
+
+  const z = await readArmed();
+  if (!z || z.armed === false) {
+    lastFireMs = 0; // not armed — release the slot so the next arm can alert at once
+    return false;
+  }
+  await markAlerted(now); // persist for the rare cold-relaunch case
 
   try {
     Vibration.vibrate(STRONG_PATTERN);

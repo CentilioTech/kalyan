@@ -15,6 +15,7 @@ import { useWind } from "../hooks/useWind";
 import { useZoneAlarm } from "../hooks/useZoneAlarm";
 import { writeArmedConfig, disarm } from "../services/zoneStore";
 import { startBackgroundZone, stopBackgroundZone } from "../services/backgroundZone";
+import { resetZoneThrottle } from "../services/zoneAlert";
 import { DangerousGood, LatLng, Units, WindStatus } from "../types";
 import { conePolygon, coneLengthFor, windStatus } from "../utils/wind";
 import { colors, radius, shadow, spacing } from "../theme";
@@ -192,6 +193,7 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
     } else {
       disarm();
       stopBackgroundZone();
+      resetZoneThrottle();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [incident?.latitude, incident?.longitude, selected, coneLengthM, wind]);
