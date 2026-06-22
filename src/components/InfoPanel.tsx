@@ -5,7 +5,6 @@ import { DangerousGood, Units, Wind } from "../types";
 import { colors, radius, spacing } from "../theme";
 import { compass8 } from "../utils/wind";
 import { HazardPlacard } from "./HazardPlacard";
-import { Glass } from "./Glass";
 
 type Props = { good: DangerousGood; units: Units; wind?: Wind | null; collapsed?: boolean; locked?: boolean; onChangeProduct?: () => void; onExpand?: () => void };
 
@@ -20,36 +19,35 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-const GLASS_INTENSITY = 35;
-const GLASS_OVERLAY = "rgba(255,255,255,0.85)"; // mostly solid — readable, with a hint of glass
-
-/** Dangerous-goods information panel shown once a product is selected. */
+/**
+ * Dangerous-goods information shown once a product is selected. Transparent — it
+ * lays its content directly on the sheet's single frosted-glass surface (no inner
+ * card), so there's only one layer behind the information.
+ */
 export function InfoPanel({ good, units, wind, collapsed, locked, onChangeProduct, onExpand }: Props) {
   // Converged state: show only the header strip (UN on the left, ERG on the right); tap to expand.
   if (collapsed) {
     return (
-      <Pressable onPress={onExpand} accessibilityRole="button" accessibilityLabel={`${good.un} ${good.name}. Tap for details`}>
-        <Glass style={[styles.card, styles.cardCollapsed]} intensity={GLASS_INTENSITY} overlay={GLASS_OVERLAY}>
-          <View style={[styles.header, styles.headerCollapsed]}>
-            <View style={styles.collapsedLeft}>
-              <HazardPlacard hazardClass={good.hazardClass} size={34} />
-              <View style={styles.collapsedId}>
-                <Text style={styles.un} numberOfLines={1}>{good.un}</Text>
-                <Text style={styles.name} numberOfLines={1}>{good.name}</Text>
-              </View>
-            </View>
-            <View style={styles.erg}>
-              <Text style={styles.ergLabel}>ERG</Text>
-              <Text style={styles.ergNum}>{good.ergGuide}</Text>
+      <Pressable style={styles.collapsed} onPress={onExpand} accessibilityRole="button" accessibilityLabel={`${good.un} ${good.name}. Tap for details`}>
+        <View style={[styles.header, styles.headerCollapsed]}>
+          <View style={styles.collapsedLeft}>
+            <HazardPlacard hazardClass={good.hazardClass} size={34} />
+            <View style={styles.collapsedId}>
+              <Text style={styles.un} numberOfLines={1}>{good.un}</Text>
+              <Text style={styles.name} numberOfLines={1}>{good.name}</Text>
             </View>
           </View>
-        </Glass>
+          <View style={styles.erg}>
+            <Text style={styles.ergLabel}>ERG</Text>
+            <Text style={styles.ergNum}>{good.ergGuide}</Text>
+          </View>
+        </View>
       </Pressable>
     );
   }
 
   return (
-    <Glass style={styles.card} intensity={GLASS_INTENSITY} overlay={GLASS_OVERLAY}>
+    <View>
       <Pressable style={styles.header} onPress={locked ? undefined : onChangeProduct} disabled={locked}>
         <HazardPlacard hazardClass={good.hazardClass} size={38} />
         <View style={{ flex: 1 }}>
@@ -108,13 +106,12 @@ export function InfoPanel({ good, units, wind, collapsed, locked, onChangeProduc
         <TriangleAlert size={13} color={colors.hmRedDeep} />
         <Text style={styles.discText}>Placeholder data — always verify against the current ERG on scene.</Text>
       </View>
-    </Glass>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.lg, borderWidth: 1, borderColor: colors.line, padding: spacing.lg },
-  cardCollapsed: { paddingVertical: spacing.md },
+  collapsed: {},
   header: { flexDirection: "row", alignItems: "center", gap: spacing.md, marginBottom: spacing.md },
   headerCollapsed: { marginBottom: 0 },
   collapsedLeft: { flexDirection: "row", alignItems: "center", gap: 8, flex: 1, minWidth: 0 },
@@ -135,12 +132,12 @@ const styles = StyleSheet.create({
   distNumIso: { fontSize: 21, fontWeight: "800", color: colors.hmRed, marginTop: 3 },
   distNumProt: { fontSize: 21, fontWeight: "800", color: colors.steel, marginTop: 3 },
   distFt: { fontSize: 8.5, color: colors.muted, marginTop: 2 },
-  windRow: { flexDirection: "row", alignItems: "center", gap: 7, backgroundColor: colors.canvas, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 10, paddingVertical: 9, marginTop: spacing.sm },
+  windRow: { flexDirection: "row", alignItems: "center", gap: 7, backgroundColor: colors.paper, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 10, paddingVertical: 9, marginTop: spacing.sm },
   windLabel: { fontSize: 11.5, color: colors.slate, fontWeight: "600" },
   windVal: { marginLeft: "auto", fontSize: 12, fontWeight: "800", color: colors.ink },
   windCaption: { fontSize: 9, color: colors.muted, textAlign: "right", marginTop: 4 },
-  kv: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.canvas },
-  k: { fontSize: 12, color: colors.muted },
+  kv: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 8, borderTopWidth: 1, borderTopColor: "rgba(0,0,0,0.06)" },
+  k: { fontSize: 12, color: colors.slate },
   v: { fontSize: 12.5, fontWeight: "700", color: colors.ink },
   call: { marginTop: spacing.md, height: 44, borderRadius: radius.md, backgroundColor: colors.ink, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
   callText: { color: colors.paper, fontSize: 13, fontWeight: "700" },

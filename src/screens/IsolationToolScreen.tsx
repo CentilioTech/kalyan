@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, UIManager, View } from "react-native";
-import { Move, Crosshair, Check, Search, ChevronRight, ChevronsDown, ChevronUp, TriangleAlert, Wind as WindIcon } from "lucide-react-native";
+import { Move, Crosshair, Check, X, Search, ChevronRight, ChevronsDown, ChevronUp, TriangleAlert, Wind as WindIcon } from "lucide-react-native";
 import { AppHeader } from "../components/AppHeader";
 import { ProductSelector } from "../components/ProductSelector";
 import { InfoPanel } from "../components/InfoPanel";
@@ -8,6 +8,7 @@ import { MapControls } from "../components/MapControls";
 import { IsolationMap } from "../components/IsolationMap";
 import { WindBadge } from "../components/WindBadge";
 import { LockBadge } from "../components/LockBadge";
+import { Glass } from "../components/Glass";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useLocation } from "../hooks/useLocation";
 import { useWind } from "../hooks/useWind";
@@ -188,6 +189,7 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
     <View style={styles.root}>
       <AppHeader />
 
+      {/* Full-height map — the floating sheet below frosts it for the glass effect. */}
       <View style={styles.mapWrap}>
         <IsolationMap
           initialRegion={DEFAULT_REGION}
@@ -260,6 +262,10 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
                 <Check size={16} color={colors.paper} />
                 <Text style={styles.confirmText}>Confirm incident location</Text>
               </Pressable>
+              <Pressable style={({ pressed }) => [styles.cancelSetBtn, pressed && styles.pressed]} onPress={() => setSettingIncident(false)}>
+                <X size={15} color={colors.ink} />
+                <Text style={styles.cancelSetText}>Cancel</Text>
+              </Pressable>
             </View>
           </>
         ) : null}
@@ -273,68 +279,72 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
         )}
 
         {error && !settingIncident && (
-          <View style={styles.banner}>
-            <Text style={styles.bannerText}>{error}</Text>
-          </View>
-        )}
-
-        {/* Wind compass — read at the incident; arrow points downwind. */}
-        {wind && incident && selected && !settingIncident && (
-          <View style={styles.windBadgeWrap} pointerEvents="none">
-            <WindBadge wind={wind} />
-          </View>
-        )}
-
-        {/* Lock control — bottom-left, mirroring the wind badge. Appears once the
-            setup is complete (located + incident + product); freezes edits when on. */}
-        {incident && selected && !settingIncident && (
-          <View style={styles.lockBadgeWrap}>
-            <LockBadge locked={locked} onToggle={toggleLock} />
+          <View style={styles.errorBanner}>
+            <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
       </View>
 
-      <View style={styles.sheet}>
-        {selected && !settingIncident && (
-          <View style={styles.collapseTabWrap} pointerEvents="box-none">
-            <View style={styles.collapseTab} {...panelPan.panHandlers}>
-              {panelExpanded ? <ChevronsDown size={13} color={colors.paper} /> : <ChevronUp size={13} color={colors.paper} />}
-              <Text style={styles.collapseTabText}>{panelExpanded ? "Drag down to collapse" : "Tap for details"}</Text>
+      {/* Floating frosted-glass sheet over the map. Hidden while placing the incident
+          so the crosshair + confirm own the full map. */}
+      {!settingIncident && (
+        <View style={styles.sheetWrap} pointerEvents="box-none">
+          {/* Wind compass (right) + Lock (left) — float just above the sheet, over the map. */}
+          {wind && incident && selected && (
+            <View style={styles.windBadgeWrap} pointerEvents="none">
+              <WindBadge wind={wind} />
             </View>
-          </View>
-        )}
-        <ScrollView style={styles.sheetScroll} contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
-          {selected ? (
-            <InfoPanel
-              good={selected}
-              units={units}
-              wind={wind}
-              collapsed={!panelExpanded}
-              locked={locked}
-              onChangeProduct={() => { if (!locked) setPickerOpen(true); }}
-              onExpand={() => setPanelAnimated(true)}
-            />
-          ) : (
-            <Text style={styles.help}>Tap “Select a dangerous good” above, then set the incident to draw the isolation zone.</Text>
           )}
-        </ScrollView>
+          {incident && selected && (
+            <View style={styles.lockBadgeWrap}>
+              <LockBadge locked={locked} onToggle={toggleLock} />
+            </View>
+          )}
 
-        {/* Toolbar stays pinned and always visible — Locate/Incident/Zone/Reset must be reachable. */}
-        <View style={styles.toolbarWrap}>
-          <MapControls
-            onUseCurrent={handleUseCurrent}
-            onSetIncident={() => { if (!locked) setSettingIncident((s) => !s); }}
-            onToggleZone={() => setZoneVisible((z) => !z)}
-            onReset={confirmReset}
-            settingIncident={settingIncident}
-            zoneVisible={zoneVisible}
-            zoneEnabled={zoneEnabled}
-            units={units}
-            onToggleUnits={() => setUnits((u) => (u === "m" ? "km" : "m"))}
-            locked={locked}
-          />
+          {selected && (
+            <View style={styles.collapseTabWrap} pointerEvents="box-none">
+              <View style={styles.collapseTab} {...panelPan.panHandlers}>
+                {panelExpanded ? <ChevronsDown size={13} color={colors.paper} /> : <ChevronUp size={13} color={colors.paper} />}
+                <Text style={styles.collapseTabText}>{panelExpanded ? "Drag down to collapse" : "Tap for details"}</Text>
+              </View>
+            </View>
+          )}
+
+          <Glass style={styles.sheetGlass} intensity={50} overlay="rgba(255,255,255,0.62)" />
+
+          <ScrollView style={styles.sheetScroll} contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
+            {selected ? (
+              <InfoPanel
+                good={selected}
+                units={units}
+                wind={wind}
+                collapsed={!panelExpanded}
+                locked={locked}
+                onChangeProduct={() => { if (!locked) setPickerOpen(true); }}
+                onExpand={() => setPanelAnimated(true)}
+              />
+            ) : (
+              <Text style={styles.help}>Tap “Select a dangerous good” above, then set the incident to draw the isolation zone.</Text>
+            )}
+          </ScrollView>
+
+          {/* Toolbar stays pinned and always visible — Locate/Incident/Zone/Reset must be reachable. */}
+          <View style={styles.toolbarWrap}>
+            <MapControls
+              onUseCurrent={handleUseCurrent}
+              onSetIncident={() => { if (!locked) setSettingIncident((s) => !s); }}
+              onToggleZone={() => setZoneVisible((z) => !z)}
+              onReset={confirmReset}
+              settingIncident={settingIncident}
+              zoneVisible={zoneVisible}
+              zoneEnabled={zoneEnabled}
+              units={units}
+              onToggleUnits={() => setUnits((u) => (u === "m" ? "km" : "m"))}
+              locked={locked}
+            />
+          </View>
         </View>
-      </View>
+      )}
 
       <ProductSelector visible={pickerOpen} onClose={() => setPickerOpen(false)} onSelect={onSelectGood} />
 
@@ -361,12 +371,14 @@ const styles = StyleSheet.create({
   setBanner: { position: "absolute", top: spacing.md, left: spacing.md, right: spacing.md, backgroundColor: colors.ink, flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 11, paddingVertical: 9, borderRadius: radius.md, zIndex: 1000 },
   setBannerText: { color: colors.paper, fontSize: 11.5, fontWeight: "600", flex: 1 },
   crosshairWrap: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center", zIndex: 1000 },
-  confirmWrap: { position: "absolute", bottom: spacing.md, left: spacing.md, right: spacing.md, zIndex: 1001 },
-  confirmBtn: { height: 46, borderRadius: radius.md, backgroundColor: colors.ink, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+  confirmWrap: { position: "absolute", bottom: spacing.xl, left: spacing.md, right: spacing.md, gap: spacing.sm, zIndex: 1001 },
+  confirmBtn: { height: 46, borderRadius: radius.md, backgroundColor: colors.ink, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, ...shadow },
   confirmText: { color: colors.paper, fontSize: 14, fontWeight: "700" },
+  cancelSetBtn: { height: 42, borderRadius: radius.md, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, ...shadow },
+  cancelSetText: { color: colors.ink, fontSize: 14, fontWeight: "700" },
   pressed: { opacity: 0.85 },
-  banner: { position: "absolute", bottom: spacing.md, left: spacing.md, right: spacing.md, backgroundColor: colors.redWash, borderColor: colors.hmRed, borderWidth: 1, borderRadius: radius.sm, padding: spacing.md, zIndex: 1000 },
-  bannerText: { color: colors.hmRedDeep, fontSize: 13 },
+  errorBanner: { position: "absolute", bottom: spacing.xl, left: spacing.md, right: spacing.md, backgroundColor: colors.redWash, borderColor: colors.hmRed, borderWidth: 1, borderRadius: radius.sm, padding: spacing.md, zIndex: 1000 },
+  errorText: { color: colors.hmRedDeep, fontSize: 13 },
   selectBanner: { position: "absolute", top: spacing.md, left: spacing.md, right: spacing.md, backgroundColor: colors.ink, flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 12, paddingVertical: 11, borderRadius: radius.md, zIndex: 1000, ...shadow },
   selectBannerText: { color: colors.paper, fontSize: 12, fontWeight: "600", flex: 1 },
   alert: { position: "absolute", top: spacing.md, left: spacing.md, right: spacing.md, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 13, paddingVertical: 11, borderRadius: radius.md, zIndex: 1002, ...shadow },
@@ -377,15 +389,17 @@ const styles = StyleSheet.create({
   alertBody: { flex: 1 },
   alertTitle: { color: colors.paper, fontSize: 13.5, fontWeight: "800" },
   alertText: { color: colors.paper, fontSize: 11.5, fontWeight: "500", marginTop: 1, opacity: 0.95 },
-  windBadgeWrap: { position: "absolute", right: spacing.md, bottom: spacing.lg, zIndex: 1000 },
-  lockBadgeWrap: { position: "absolute", left: spacing.md, bottom: spacing.lg, zIndex: 1001 },
-  sheet: { maxHeight: "55%", backgroundColor: colors.canvas, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, marginTop: -radius.lg, ...shadow },
-  // Dark collapse/expand pill that straddles the top edge of the sheet (half over the map).
+
+  // Floating sheet
+  sheetWrap: { position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "55%", ...shadow },
+  sheetGlass: { ...StyleSheet.absoluteFillObject, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, borderTopWidth: 1, borderColor: "rgba(255,255,255,0.5)" },
+  windBadgeWrap: { position: "absolute", right: spacing.md, top: -54, zIndex: 1000 },
+  lockBadgeWrap: { position: "absolute", left: spacing.md, top: -50, zIndex: 1001 },
   collapseTabWrap: { position: "absolute", top: -13, left: 0, right: 0, alignItems: "center", zIndex: 1003 },
   collapseTab: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: colors.ink, paddingHorizontal: 13, paddingVertical: 6, borderRadius: radius.pill, ...shadow },
   collapseTabText: { color: colors.paper, fontSize: 11, fontWeight: "700" },
   sheetScroll: { flexShrink: 1 },
   sheetContent: { padding: spacing.lg, gap: spacing.md },
-  toolbarWrap: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.canvas },
-  help: { fontSize: 13, color: colors.muted, lineHeight: 19 },
+  toolbarWrap: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg, borderTopWidth: 1, borderTopColor: "rgba(0,0,0,0.06)" },
+  help: { fontSize: 13, color: colors.slate, lineHeight: 19 },
 });

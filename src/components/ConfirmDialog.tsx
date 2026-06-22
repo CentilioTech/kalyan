@@ -15,16 +15,16 @@ type Props = {
 };
 
 /**
- * In-app confirmation dialog on a subtle frosted-glass card — mostly solid so the
- * near-black message text stays clearly readable (a responder must never misread a
- * safety-critical prompt), with just a hint of the dimmed map showing through.
+ * In-app confirmation dialog on a frosted-glass card (same translucency as an iOS
+ * notification): the dimmed scene shows softly through the blur, while the
+ * near-black message text stays clearly readable.
  */
 export function ConfirmDialog({ visible, title, message, confirmLabel = "Confirm", cancelLabel = "Cancel", destructive, onConfirm, onCancel }: Props) {
   return (
     <Modal visible={visible} transparent animationType="fade" statusBarTranslucent onRequestClose={onCancel}>
       <Pressable style={styles.scrim} onPress={onCancel}>
         <Pressable style={styles.cardWrap} onPress={() => {}}>
-          <Glass style={styles.card} intensity={55} overlay="rgba(255,255,255,0.78)">
+          <Glass style={styles.card} intensity={60} overlay="rgba(255,255,255,0.55)">
             <Text style={styles.title}>{title}</Text>
             <Text style={styles.message}>{message}</Text>
             <View style={styles.actions}>
@@ -43,14 +43,14 @@ export function ConfirmDialog({ visible, title, message, confirmLabel = "Confirm
 }
 
 const styles = StyleSheet.create({
-  scrim: { flex: 1, backgroundColor: "rgba(10,12,16,0.55)", alignItems: "center", justifyContent: "center", padding: spacing.xl },
-  cardWrap: { width: "100%", maxWidth: 360, shadowColor: "#14181F", shadowOpacity: 0.18, shadowRadius: 20, shadowOffset: { width: 0, height: 10 }, elevation: 6 },
-  card: { width: "100%", borderRadius: radius.lg, padding: spacing.xl, borderWidth: 1, borderColor: "rgba(255,255,255,0.6)" },
+  scrim: { flex: 1, backgroundColor: "rgba(10,12,16,0.3)", alignItems: "center", justifyContent: "center", padding: spacing.xl },
+  cardWrap: { width: "100%", maxWidth: 360, shadowColor: "#14181F", shadowOpacity: 0.22, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 7 },
+  card: { width: "100%", borderRadius: radius.lg, padding: spacing.xl, borderWidth: 1, borderColor: "rgba(255,255,255,0.55)" },
   title: { fontSize: 19, fontWeight: "800", color: colors.ink, marginBottom: 8, letterSpacing: -0.2 },
   message: { fontSize: 15.5, lineHeight: 23, color: colors.ink, marginBottom: spacing.xl },
   actions: { flexDirection: "row", gap: spacing.md },
   btn: { flex: 1, height: 48, borderRadius: radius.md, alignItems: "center", justifyContent: "center" },
-  cancelBtn: { backgroundColor: colors.canvas, borderWidth: 1, borderColor: colors.line },
+  cancelBtn: { backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line },
   cancelText: { fontSize: 15, fontWeight: "700", color: colors.ink },
   confirmBtn: { backgroundColor: colors.ink },
   destructiveBtn: { backgroundColor: colors.hmRed },
