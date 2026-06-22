@@ -2,14 +2,17 @@ import React, { useEffect, useRef } from "react";
 import { Platform, StyleSheet } from "react-native";
 import MapView, { Circle, Marker, Polygon, PROVIDER_GOOGLE, Region } from "react-native-maps";
 
-// Android -> Google Maps (needs a key); iOS -> native Apple Maps (no key/pods needed).
-const MAP_PROVIDER = PROVIDER_GOOGLE; // Google Maps on BOTH iOS and Android
+// Android -> Google Maps (manifest API key). iOS -> native Apple Maps (MapKit, no key/SDK).
+// iOS must NOT use PROVIDER_GOOGLE here: the Google Maps iOS SDK isn't linked (no pod /
+// GMSServices key), so PROVIDER_GOOGLE renders a blank map and crashes the map view.
+// Apple Maps is built into react-native-maps on iOS and needs no extra setup.
+const MAP_PROVIDER = Platform.OS === "android" ? PROVIDER_GOOGLE : undefined;
 import { DangerousGood, LatLng } from "../types";
 import { colors } from "../theme";
 
-// Native map (iOS + Android) using react-native-maps with the Google provider.
-// On a real device this is the proper native Google map; the web build uses
-// IsolationMap.web.tsx instead (Metro resolves the platform extension).
+// Native map (iOS + Android) using react-native-maps. On Android this is Google Maps;
+// on iOS it's Apple Maps (MapKit). The web build uses IsolationMap.web.tsx instead
+// (Metro resolves the platform extension).
 export interface IsolationMapProps {
   initialRegion: Region;
   incident: LatLng | null;
