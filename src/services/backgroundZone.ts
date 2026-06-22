@@ -26,10 +26,10 @@ export async function ensureAndroidChannel(): Promise<void> {
 
 /**
  * Start background location monitoring so hazard alerts fire even when the app is
- * backgrounded or the screen is off. Requires foreground + background ("Always")
- * location permission; degrades gracefully to foreground-only if background is
- * denied. Android keeps a foreground service alive (a persistent "monitoring"
- * notification) so updates keep flowing; iOS uses the location background mode.
+ * backgrounded or the screen is off — but ONLY while the app is alive. When the app
+ * is swiped away / fully closed, monitoring stops and no further alerts fire (and the
+ * app is not relaunched). Requires foreground + background ("Always") location
+ * permission; degrades gracefully to foreground-only if background is denied.
  */
 export async function startBackgroundZone(): Promise<boolean> {
   if (!isNative) return false;
@@ -59,6 +59,9 @@ export async function startBackgroundZone(): Promise<boolean> {
         notificationTitle: "HM Intel — zone monitoring active",
         notificationBody: "Watching your distance from the incident hazard zone.",
         notificationColor: "#C01718",
+        // Stop monitoring (and alerts) the moment the app is swiped away / closed —
+        // no notifications once the app is fully closed, and no relaunch.
+        killServiceOnDestroy: true,
       },
       ...(Platform.OS === "ios" ? { activityType: Location.ActivityType.OtherNavigation } : {}),
     });
