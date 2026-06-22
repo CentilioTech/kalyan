@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { LayoutAnimation, Platform, Pressable, ScrollView, StyleSheet, Text, UIManager, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Move, Crosshair, Check, X, Search, ChevronRight, ChevronsDown, ChevronUp, TriangleAlert, Wind as WindIcon } from "lucide-react-native";
 import { AppHeader } from "../components/AppHeader";
 import { ProductSelector } from "../components/ProductSelector";
@@ -18,11 +18,6 @@ import { startBackgroundZone, stopBackgroundZone } from "../services/backgroundZ
 import { DangerousGood, LatLng, Units, WindStatus } from "../types";
 import { conePolygon, coneLengthFor, windStatus } from "../utils/wind";
 import { colors, radius, shadow, spacing } from "../theme";
-
-// Enable LayoutAnimation on Android (iOS/web handle it natively / no-op).
-if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 // Platform-neutral region type (the native map maps it onto react-native-maps' Region).
 type Region = { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number };
@@ -74,8 +69,9 @@ export function IsolationToolScreen({ locationApi }: ScreenProps) {
   const [panelExpanded, setPanelExpanded] = useState(true);
   const panelExpandedRef = useRef(true);
   panelExpandedRef.current = panelExpanded;
+  // Instant (no LayoutAnimation): a snap toggle is 100% reliable — animating the
+  // floating sheet's resize was crash-prone on Android, and snappy is fine in the field.
   const setPanelAnimated = useCallback((v: boolean) => {
-    LayoutAnimation.configureNext(LayoutAnimation.create(180, LayoutAnimation.Types.easeInEaseOut, LayoutAnimation.Properties.opacity));
     setPanelExpanded(v);
   }, []);
   // Plain tap toggle on the handle — a Pressable, so it works reliably every time
@@ -418,9 +414,11 @@ const styles = StyleSheet.create({
   // Floating sheet
   sheetWrap: { position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "55%", ...shadow },
   sheetGlass: { ...StyleSheet.absoluteFillObject, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, borderTopWidth: 1, borderColor: "rgba(255,255,255,0.5)" },
-  // Lock + wind badges share one row anchored just above the sheet's top edge, with
-  // alignItems:flex-end so they float on the same baseline regardless of height.
-  badgeRow: { position: "absolute", left: spacing.md, right: spacing.md, bottom: "100%", marginBottom: spacing.sm, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", zIndex: 1001 },
+  // Lock + wind badges share one row floating just above the sheet's top edge, with
+  // alignItems:flex-end so they sit on the same baseline regardless of height. Uses a
+  // fixed negative top (NOT a percentage) — a percentage offset crashes Android's
+  // LayoutAnimation when the sheet resizes on collapse/expand.
+  badgeRow: { position: "absolute", left: spacing.md, right: spacing.md, top: -62, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", zIndex: 1001 },
   collapseTabWrap: { position: "absolute", top: -13, left: 0, right: 0, alignItems: "center", zIndex: 1003 },
   collapseTab: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: colors.ink, paddingHorizontal: 13, paddingVertical: 6, borderRadius: radius.pill, ...shadow },
   collapseTabText: { color: colors.paper, fontSize: 11, fontWeight: "700" },
